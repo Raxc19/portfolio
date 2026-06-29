@@ -1015,45 +1015,31 @@
       const nav = document.querySelector('nav');
       const startY = nav ? nav.offsetHeight : 0;
       const endY   = H;
+      const inset  = 32; // px from edge
 
       svg.style.height = H + 'px';
 
-      const steps = 500;
-      const amp   = 28; // how far the wave strays from the edge
-      const freq  = 7;  // number of full wave cycles
+      const leftX  = inset;
+      const rightX = W - inset;
 
-      const buildWave = (edgeX, dir) => {
-        let d = '';
-        for (let i = 0; i <= steps; i++) {
-          const t = i / steps;
-          const y = startY + (endY - startY) * t;
-          const x = edgeX + dir * (amp + amp * Math.sin(t * Math.PI * 2 * freq));
-          d += i === 0 ? `M ${x} ${y}` : ` L ${x} ${y}`;
-        }
-        return d;
-      };
+      const left = document.getElementById('spiral-path');
+      left.setAttribute('d', `M ${leftX} ${startY} L ${leftX} ${endY}`);
 
-      // Left line — hugs left edge, waves inward
-      const left  = document.getElementById('spiral-path');
-      left.setAttribute('d', buildWave(0, 1));
-
-      // Right line — hugs right edge, waves inward
       let right = document.getElementById('spiral-path-right');
       if (!right) {
         right = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         right.setAttribute('id', 'spiral-path-right');
         right.setAttribute('fill', 'none');
         right.setAttribute('stroke', 'url(#spiralGrad)');
-        right.setAttribute('stroke-width', '1.8');
+        right.setAttribute('stroke-width', '1.5');
         right.setAttribute('filter', 'url(#spiralBlur)');
         svg.appendChild(right);
       }
-      right.setAttribute('d', buildWave(W, -1));
+      right.setAttribute('d', `M ${rightX} ${startY} L ${rightX} ${endY}`);
 
-      // Animate both lines drawing in
       [left, right].forEach(p => {
         const len = p.getTotalLength();
-        p.style.strokeDasharray  = len;
+        p.style.strokeDasharray  = '6 6';
         p.style.strokeDashoffset = len;
         p.style.transition = 'stroke-dashoffset 3s ease-in-out';
         requestAnimationFrame(() => { p.style.strokeDashoffset = 0; });
