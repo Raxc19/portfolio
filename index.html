@@ -1021,23 +1021,23 @@
       // Waypoints [x from left edge, fraction of total height]
       // Produces organic S-curves with one small loop around 22-27%
       const wpts = [
-        [40, 0.00],
-        [64, 0.06],
-        [42, 0.12],
-        [20, 0.17],
-        [38, 0.21],
-        [70, 0.25],  // loop: swing inward
-        [58, 0.20],  // loop: arc back up (crosses path, forms loop)
-        [26, 0.26],  // loop: exit left
-        [42, 0.32],
-        [70, 0.41],
-        [42, 0.50],
-        [18, 0.59],
-        [42, 0.68],
-        [66, 0.77],
-        [42, 0.86],
-        [24, 0.93],
-        [40, 1.00],
+        [120, 0.00],
+        [160, 0.06],
+        [122, 0.12],
+        [ 88, 0.17],
+        [118, 0.21],
+        [168, 0.25],  // loop: swing inward
+        [150, 0.20],  // loop: arc back up (crosses path, forms loop)
+        [ 96, 0.26],  // loop: exit left
+        [122, 0.32],
+        [165, 0.41],
+        [122, 0.50],
+        [ 84, 0.59],
+        [122, 0.68],
+        [158, 0.77],
+        [122, 0.86],
+        [ 94, 0.93],
+        [120, 1.00],
       ];
 
       function catmullRom(pts) {
