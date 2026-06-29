@@ -1009,76 +1009,35 @@
 
   <script>
     function buildSpiral() {
-      const svg    = document.getElementById('page-spiral');
-      const W      = document.documentElement.scrollWidth;
-      const H      = document.documentElement.scrollHeight;
-      const nav    = document.querySelector('nav');
-      const startY = nav ? nav.offsetHeight : 0;
-      const totalH = H - startY;
-
+      const svg = document.getElementById('page-spiral');
+      const W   = document.documentElement.scrollWidth;
+      const H   = document.documentElement.scrollHeight;
       svg.style.height = H + 'px';
 
-      // Crossing is guaranteed by making the approach a true vertical at x=195
-      // (three consecutive waypoints at x=195), then having the loop's return
-      // arc cross that vertical line going left→right at y≈0.200.
-      // The approach is going perfectly DOWN at x=195; the return is going
-      // nearly HORIZONTAL at x=195 → they meet at ~90° = real lasso cross.
-      const wpts = [
-        [195, 0.000],
-        [215, 0.055],
-        [195, 0.108],
-        [175, 0.155],
-        [195, 0.175],   // transition: x back to 195
-        [195, 0.200],   // CROSSING visit-1: purely vertical, going DOWN
-        [195, 0.250],   // loop entry: continue down, then depart right
-        // clockwise oval loop
-        [255, 0.278],   // NE
-        [272, 0.308],   // E (rightmost)
-        [255, 0.338],   // SE
-        [195, 0.358],   // S (bottom)
-        [135, 0.338],   // SW
-        [118, 0.308],   // W (leftmost)
-        [135, 0.278],   // NW, arcing up
-        [170, 0.210],   // approaching crossing from left
-        [195, 0.200],   // CROSSING visit-2: nearly HORIZONTAL going right → 90° cross!
-        [215, 0.215],   // exit deflection
-        [220, 0.258],   // continue down
-        [195, 0.420],   // below loop, S-curves resume
-        [215, 0.505],
-        [195, 0.590],
-        [175, 0.672],
-        [195, 0.752],
-        [215, 0.832],
-        [195, 0.912],
-        [178, 0.958],
-        [195, 1.000],
-      ];
-
-      function catmullRom(pts) {
-        let d = `M ${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
-        for (let i = 0; i < pts.length - 1; i++) {
-          const p0 = pts[Math.max(0, i - 1)];
-          const p1 = pts[i];
-          const p2 = pts[i + 1];
-          const p3 = pts[Math.min(pts.length - 1, i + 2)];
-          const cp1x = p1[0] + (p2[0] - p0[0]) / 6;
-          const cp1y = p1[1] + (p2[1] - p0[1]) / 6;
-          const cp2x = p2[0] - (p3[0] - p1[0]) / 6;
-          const cp2y = p2[1] - (p3[1] - p1[1]) / 6;
-          d += ` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;
-        }
+      function smileyPath(cx, cy, r) {
+        const er = r * 0.10;
+        const ex = r * 0.30;
+        const ey = r * 0.22;
+        const sx = r * 0.50;
+        const smileY  = cy + r * 0.15;
+        const smileRx = r * 0.58;
+        const smileRy = r * 0.40;
+        // face circle (two semicircles)
+        let d = `M ${cx} ${cy - r} A ${r} ${r} 0 1 1 ${cx} ${cy + r} A ${r} ${r} 0 1 1 ${cx} ${cy - r}`;
+        // left eye
+        d += ` M ${cx - ex} ${cy - ey - er} A ${er} ${er} 0 1 1 ${cx - ex} ${cy - ey + er} A ${er} ${er} 0 1 1 ${cx - ex} ${cy - ey - er}`;
+        // right eye
+        d += ` M ${cx + ex} ${cy - ey - er} A ${er} ${er} 0 1 1 ${cx + ex} ${cy - ey + er} A ${er} ${er} 0 1 1 ${cx + ex} ${cy - ey - er}`;
+        // smile
+        d += ` M ${cx - sx} ${smileY} A ${smileRx} ${smileRy} 0 0 1 ${cx + sx} ${smileY}`;
         return d;
       }
 
-      function toAbsolute(wpts, side) {
-        return wpts.map(([x, fy]) => [
-          side === 'right' ? W - x : x,
-          startY + totalH * fy
-        ]);
-      }
+      const cy = H * 0.35;
+      const r  = 90;
 
       const left = document.getElementById('spiral-path');
-      left.setAttribute('d', catmullRom(toAbsolute(wpts, 'left')));
+      left.setAttribute('d', smileyPath(195, cy, r));
       left.setAttribute('stroke-width', '2');
 
       let right = document.getElementById('spiral-path-right');
@@ -1091,13 +1050,13 @@
         right.setAttribute('filter', 'url(#spiralBlur)');
         svg.appendChild(right);
       }
-      right.setAttribute('d', catmullRom(toAbsolute(wpts, 'right')));
+      right.setAttribute('d', smileyPath(W - 195, cy, r));
 
       [left, right].forEach(p => {
         const len = p.getTotalLength();
         p.style.strokeDasharray  = '7 9';
         p.style.strokeDashoffset = len;
-        p.style.transition = 'stroke-dashoffset 4s ease-in-out';
+        p.style.transition = 'stroke-dashoffset 3s ease-in-out';
         requestAnimationFrame(() => { p.style.strokeDashoffset = 0; });
       });
     }
