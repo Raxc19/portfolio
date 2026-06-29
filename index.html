@@ -34,6 +34,7 @@
       font-family: 'Inter', sans-serif;
       line-height: 1.6;
       overflow-x: hidden;
+      position: relative;
     }
 
     /* ── Nav ── */
@@ -659,6 +660,24 @@
 </head>
 <body>
 
+  <!-- Page spiral decoration -->
+  <svg id="page-spiral" style="position:absolute;top:0;left:0;width:100%;pointer-events:none;z-index:0;overflow:visible;" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="spiralGrad" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+        <stop offset="0%"   stop-color="#2563eb" stop-opacity="0"/>
+        <stop offset="15%"  stop-color="#2563eb" stop-opacity="0.5"/>
+        <stop offset="50%"  stop-color="#3b82f6" stop-opacity="0.35"/>
+        <stop offset="85%"  stop-color="#2563eb" stop-opacity="0.25"/>
+        <stop offset="100%" stop-color="#2563eb" stop-opacity="0"/>
+      </linearGradient>
+      <filter id="spiralBlur">
+        <feGaussianBlur stdDeviation="1.5"/>
+      </filter>
+    </defs>
+    <path id="spiral-path" fill="none" stroke="url(#spiralGrad)" stroke-width="1.8"
+          stroke-dasharray="8 5" filter="url(#spiralBlur)"/>
+  </svg>
+
   <!-- Nav -->
   <nav>
     <div class="nav-logo">dominic.rodriguez</div>
@@ -987,6 +1006,57 @@
 
     window.addEventListener('load', () => setTimeout(drawConnectors, 100));
     window.addEventListener('resize', drawConnectors);
+  </script>
+
+  <script>
+    function buildSpiral() {
+      const svg  = document.getElementById('page-spiral');
+      const path = document.getElementById('spiral-path');
+      const W    = document.documentElement.scrollWidth;
+      const H    = document.documentElement.scrollHeight;
+      const hero = document.querySelector('.hero');
+      const nav  = document.querySelector('nav');
+      const startY = (nav ? nav.offsetHeight : 0) + (hero ? hero.offsetHeight : 0);
+      const endY   = H;
+      const cx     = W / 2;
+
+      svg.style.height = H + 'px';
+
+      // Build a wavy spiral path using sine with varying amplitude
+      const steps = 600;
+      let d = '';
+      for (let i = 0; i <= steps; i++) {
+        const t   = i / steps;
+        const y   = startY + (endY - startY) * t;
+
+        // Amplitude pulses — creates spiral-loop feel
+        const amp = W * 0.22 * Math.sin(t * Math.PI * 1.5 + 0.4);
+
+        // Main wave frequency — ~6 full cycles down the page
+        const wave = Math.sin(t * Math.PI * 2 * 6);
+
+        // Small loop overlay for "looping" feel
+        const loop = Math.sin(t * Math.PI * 2 * 18) * W * 0.04;
+
+        const x = cx + wave * amp + loop;
+
+        d += i === 0 ? `M ${x} ${y}` : ` L ${x} ${y}`;
+      }
+
+      path.setAttribute('d', d);
+
+      // Animate the dash offset for a flowing effect
+      const totalLen = path.getTotalLength();
+      path.style.strokeDasharray  = `${totalLen}`;
+      path.style.strokeDashoffset = `${totalLen}`;
+      path.style.transition = 'stroke-dashoffset 3.5s cubic-bezier(0.4,0,0.2,1)';
+      requestAnimationFrame(() => {
+        path.style.strokeDashoffset = '0';
+      });
+    }
+
+    window.addEventListener('load', buildSpiral);
+    window.addEventListener('resize', buildSpiral);
   </script>
 
   <script>
