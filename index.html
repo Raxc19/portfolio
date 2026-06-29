@@ -1019,25 +1019,33 @@
       svg.style.height = H + 'px';
 
       // Waypoints [x from left edge, fraction of total height]
-      // Produces organic S-curves with one small loop around 22-27%
+      // S-curves with a smooth 8-point oval loop at ~26% down
       const wpts = [
-        [120, 0.00],
-        [160, 0.06],
-        [122, 0.12],
-        [ 88, 0.17],
-        [118, 0.21],
-        [168, 0.25],  // loop: swing inward
-        [150, 0.20],  // loop: arc back up (crosses path, forms loop)
-        [ 96, 0.26],  // loop: exit left
-        [122, 0.32],
-        [165, 0.41],
-        [122, 0.50],
-        [ 84, 0.59],
-        [122, 0.68],
-        [158, 0.77],
-        [122, 0.86],
-        [ 94, 0.93],
-        [120, 1.00],
+        [195, 0.000],
+        [232, 0.055],
+        [195, 0.105],
+        [158, 0.155],
+        [195, 0.200],  // approaching loop
+        // 8-point clockwise oval loop (inward = higher x for left side)
+        [195, 0.232],  // 12 o'clock (enter)
+        [232, 0.248],  // 1:30
+        [248, 0.270],  // 3 o'clock
+        [232, 0.292],  // 4:30
+        [195, 0.308],  // 6 o'clock
+        [158, 0.292],  // 7:30
+        [142, 0.270],  // 9 o'clock
+        [158, 0.248],  // 10:30
+        [196, 0.233],  // 12 o'clock (crossing — x+1 to avoid exact duplicate)
+        [200, 0.252],  // exit deflection
+        [195, 0.390],  // well below loop
+        [232, 0.480],
+        [195, 0.565],
+        [158, 0.650],
+        [195, 0.735],
+        [230, 0.820],
+        [195, 0.900],
+        [165, 0.950],
+        [195, 1.000],
       ];
 
       function catmullRom(pts) {
