@@ -77,12 +77,34 @@
     /* ── Hero ── */
     .hero {
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
       padding: 120px 48px 80px;
       position: relative;
       background: linear-gradient(160deg, #ffffff 0%, #eff6ff 60%, #dbeafe 100%);
+      gap: 48px;
+    }
+
+    .hero-content { display: flex; flex-direction: column; }
+
+    .hero-image {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hero-image img {
+      width: 100%;
+      max-width: 520px;
+      border-radius: 20px;
+      box-shadow: 0 24px 64px rgba(37,99,235,0.12), 0 4px 16px rgba(0,0,0,0.08);
+      animation: float 5s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-10px); }
     }
 
     .hero-glow {
@@ -614,7 +636,8 @@
       nav { padding: 16px 24px; }
       .nav-links { gap: 20px; }
       section { padding: 60px 24px; }
-      .hero { padding: 100px 24px 60px; }
+      .hero { padding: 100px 24px 60px; grid-template-columns: 1fr; }
+      .hero-image { display: none; }
       .about-grid { grid-template-columns: 1fr; }
       .about-photo { width: 120px; height: 120px; margin: 0 auto; }
       .project-card.featured { flex-direction: column; }
@@ -640,15 +663,20 @@
   <!-- Hero -->
   <div class="hero">
     <div class="hero-glow"></div>
-    <div class="hero-label"><i class="fa-solid fa-terminal fa-xs"></i>&nbsp; Dominic Rodriguez</div>
-    <h1>Builder.<br><span class="accent">Roboticist.</span><br>Engineer.</h1>
-    <p class="hero-sub">I build things — from desktop widgets and RL-trained robots to FRC competition tools and custom Windows utilities.</p>
-    <div class="hero-tags">
-      <span class="tag"><i class="fa-solid fa-robot fa-xs"></i> Robotics</span>
-      <span class="tag"><i class="fa-solid fa-brain fa-xs"></i> Machine Learning</span>
-      <span class="tag"><i class="fa-solid fa-gear fa-xs"></i> FRC #987</span>
-      <span class="tag"><i class="fa-solid fa-cube fa-xs"></i> CAD / FeatureScript</span>
-      <span class="tag"><i class="fa-solid fa-code fa-xs"></i> Software</span>
+    <div class="hero-content">
+      <div class="hero-label"><i class="fa-solid fa-terminal fa-xs"></i>&nbsp; Dominic Rodriguez</div>
+      <h1>Builder.<br><span class="accent">Roboticist.</span><br>Engineer.</h1>
+      <p class="hero-sub">I build things — from desktop widgets and RL-trained robots to FRC competition tools and custom Windows utilities.</p>
+      <div class="hero-tags">
+        <span class="tag"><i class="fa-solid fa-robot fa-xs"></i> Robotics</span>
+        <span class="tag"><i class="fa-solid fa-brain fa-xs"></i> Machine Learning</span>
+        <span class="tag"><i class="fa-solid fa-gear fa-xs"></i> FRC #987</span>
+        <span class="tag"><i class="fa-solid fa-cube fa-xs"></i> CAD / FeatureScript</span>
+        <span class="tag"><i class="fa-solid fa-code fa-xs"></i> Software</span>
+      </div>
+    </div>
+    <div class="hero-image">
+      <img src="hero-robot.png" alt="Bipedal robot CAD render">
     </div>
   </div>
 
