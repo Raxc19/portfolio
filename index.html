@@ -554,6 +554,28 @@
       aspect-ratio: 1;
       object-fit: cover;
     }
+    .frc-cad-item .hover-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+    .frc-cad-item {
+      position: relative;
+    }
+    .frc-cad-item:hover .hover-video {
+      opacity: 1;
+    }
+    .frc-cad-item:hover img {
+      opacity: 0;
+    }
+    .frc-cad-item img {
+      transition: opacity 0.3s ease;
+    }
 
     .frc-cad-label {
       padding: 8px 12px;
@@ -871,8 +893,9 @@
         <p>As part of FRC Team 987, I designed the 2026 game shooter mechanism and a custom 3D-printed belt tensioner — a pulley system that auto-centers the belt to prevent slipping under rapid movement. I also built physics simulators and Onshape FeatureScripts used throughout the engineering cycle.</p>
 
         <div class="frc-cad-images">
-          <div class="frc-cad-item">
+          <div class="frc-cad-item" id="shooter-card">
             <img src="frc-shooter.png" alt="FRC 2026 Game Shooter">
+            <video class="hover-video" src="shooter.mov" muted playsinline loop preload="none"></video>
             <div class="frc-cad-label"><i class="fa-solid fa-bullseye"></i> 2026 Game Shooter</div>
           </div>
           <div class="frc-cad-item">
@@ -1029,6 +1052,12 @@
 
     window.addEventListener('load', () => setTimeout(drawConnectors, 100));
     window.addEventListener('resize', drawConnectors);
+
+    // Hover video for shooter card
+    const shooterCard = document.getElementById('shooter-card');
+    const shooterVideo = shooterCard.querySelector('.hover-video');
+    shooterCard.addEventListener('mouseenter', () => { shooterVideo.play(); });
+    shooterCard.addEventListener('mouseleave', () => { shooterVideo.pause(); shooterVideo.currentTime = 0; });
   </script>
 
   <script>
