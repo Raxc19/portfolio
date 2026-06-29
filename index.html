@@ -1017,14 +1017,17 @@
       // Remove old extra smiley elements so resize doesn't duplicate
       svg.querySelectorAll('.smiley-extra').forEach(el => el.remove());
 
-      function addSmiley(cx, cy, r) {
+      function addSmiley(cx, cy, r, rotateDeg) {
         const ex = r * 0.30, ey = r * 0.22, er = r * 0.10;
         const sx = r * 0.50, smileY = cy + r * 0.15;
         const smileRx = r * 0.58, smileRy = r * 0.42;
 
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('class', 'smiley-extra');
+        g.setAttribute('transform', `rotate(${rotateDeg}, ${cx}, ${cy})`);
+
         // Face circle — dashed, no fill
         const face = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        face.setAttribute('class', 'smiley-extra');
         face.setAttribute('fill', 'none');
         face.setAttribute('stroke', '#2563eb');
         face.setAttribute('stroke-width', '2');
@@ -1032,30 +1035,30 @@
         face.setAttribute('d',
           `M ${cx} ${cy - r} A ${r} ${r} 0 1 1 ${cx} ${cy + r} A ${r} ${r} 0 1 1 ${cx} ${cy - r}`
         );
-        svg.appendChild(face);
+        g.appendChild(face);
 
         // Eyes — solid filled circles
         [-ex, ex].forEach(dx => {
           const eye = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-          eye.setAttribute('class', 'smiley-extra');
           eye.setAttribute('cx', cx + dx);
           eye.setAttribute('cy', cy - ey);
           eye.setAttribute('r', er);
           eye.setAttribute('fill', '#2563eb');
-          svg.appendChild(eye);
+          g.appendChild(eye);
         });
 
         // Smile — solid stroke, no dash
         const smile = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        smile.setAttribute('class', 'smiley-extra');
         smile.setAttribute('fill', 'none');
         smile.setAttribute('stroke', '#2563eb');
-        smile.setAttribute('stroke-width', '4.5');
+        smile.setAttribute('stroke-width', '6');
         smile.setAttribute('stroke-linecap', 'round');
         smile.setAttribute('d',
           `M ${cx - sx} ${smileY} A ${smileRx} ${smileRy} 0 0 0 ${cx + sx} ${smileY}`
         );
-        svg.appendChild(smile);
+        g.appendChild(smile);
+
+        svg.appendChild(g);
       }
 
       // Hide the base path (we build everything dynamically above)
@@ -1070,8 +1073,8 @@
       right.setAttribute('d', '');
 
       const r = 90;
-      addSmiley(195,     H * 0.22, r);  // left: higher
-      addSmiley(W - 195, H * 0.52, r);  // right: lower
+      addSmiley(195,     H * 0.22, r, -15);  // left: higher, tilted left
+      addSmiley(W - 195, H * 0.52, r,  15);  // right: lower, tilted right
     }
 
     window.addEventListener('load', buildSpiral);
