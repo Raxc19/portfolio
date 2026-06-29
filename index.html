@@ -674,8 +674,7 @@
         <feGaussianBlur stdDeviation="1.5"/>
       </filter>
     </defs>
-    <path id="spiral-path" fill="none" stroke="url(#spiralGrad)" stroke-width="1.8"
-          stroke-dasharray="8 5" filter="url(#spiralBlur)"/>
+    <path id="spiral-path" fill="none" stroke="url(#spiralGrad)" stroke-width="1.8" filter="url(#spiralBlur)"/>
   </svg>
 
   <!-- Nav -->
@@ -1010,48 +1009,54 @@
 
   <script>
     function buildSpiral() {
-      const svg  = document.getElementById('page-spiral');
-      const path = document.getElementById('spiral-path');
-      const W    = document.documentElement.scrollWidth;
-      const H    = document.documentElement.scrollHeight;
-      const hero = document.querySelector('.hero');
-      const nav  = document.querySelector('nav');
-      const startY = (nav ? nav.offsetHeight : 0) + (hero ? hero.offsetHeight : 0);
+      const svg = document.getElementById('page-spiral');
+      const W   = document.documentElement.scrollWidth;
+      const H   = document.documentElement.scrollHeight;
+      const nav = document.querySelector('nav');
+      const startY = nav ? nav.offsetHeight : 0;
       const endY   = H;
-      const cx     = W / 2;
 
       svg.style.height = H + 'px';
 
-      // Build a wavy spiral path using sine with varying amplitude
-      const steps = 600;
-      let d = '';
-      for (let i = 0; i <= steps; i++) {
-        const t   = i / steps;
-        const y   = startY + (endY - startY) * t;
+      const steps = 500;
+      const amp   = 28; // how far the wave strays from the edge
+      const freq  = 7;  // number of full wave cycles
 
-        // Amplitude pulses — creates spiral-loop feel
-        const amp = W * 0.22 * Math.sin(t * Math.PI * 1.5 + 0.4);
+      const buildWave = (edgeX, dir) => {
+        let d = '';
+        for (let i = 0; i <= steps; i++) {
+          const t = i / steps;
+          const y = startY + (endY - startY) * t;
+          const x = edgeX + dir * (amp + amp * Math.sin(t * Math.PI * 2 * freq));
+          d += i === 0 ? `M ${x} ${y}` : ` L ${x} ${y}`;
+        }
+        return d;
+      };
 
-        // Main wave frequency — ~6 full cycles down the page
-        const wave = Math.sin(t * Math.PI * 2 * 6);
+      // Left line — hugs left edge, waves inward
+      const left  = document.getElementById('spiral-path');
+      left.setAttribute('d', buildWave(0, 1));
 
-        // Small loop overlay for "looping" feel
-        const loop = Math.sin(t * Math.PI * 2 * 18) * W * 0.04;
-
-        const x = cx + wave * amp + loop;
-
-        d += i === 0 ? `M ${x} ${y}` : ` L ${x} ${y}`;
+      // Right line — hugs right edge, waves inward
+      let right = document.getElementById('spiral-path-right');
+      if (!right) {
+        right = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        right.setAttribute('id', 'spiral-path-right');
+        right.setAttribute('fill', 'none');
+        right.setAttribute('stroke', 'url(#spiralGrad)');
+        right.setAttribute('stroke-width', '1.8');
+        right.setAttribute('filter', 'url(#spiralBlur)');
+        svg.appendChild(right);
       }
+      right.setAttribute('d', buildWave(W, -1));
 
-      path.setAttribute('d', d);
-
-      // Animate the dash offset for a flowing effect
-      const totalLen = path.getTotalLength();
-      path.style.strokeDasharray  = `${totalLen}`;
-      path.style.strokeDashoffset = `${totalLen}`;
-      path.style.transition = 'stroke-dashoffset 3.5s cubic-bezier(0.4,0,0.2,1)';
-      requestAnimationFrame(() => {
-        path.style.strokeDashoffset = '0';
+      // Animate both lines drawing in
+      [left, right].forEach(p => {
+        const len = p.getTotalLength();
+        p.style.strokeDasharray  = len;
+        p.style.strokeDashoffset = len;
+        p.style.transition = 'stroke-dashoffset 3s ease-in-out';
+        requestAnimationFrame(() => { p.style.strokeDashoffset = 0; });
       });
     }
 
