@@ -1014,67 +1014,106 @@
       const H   = document.documentElement.scrollHeight;
       svg.style.height = H + 'px';
 
-      // Remove old extra smiley elements so resize doesn't duplicate
       svg.querySelectorAll('.smiley-extra').forEach(el => el.remove());
 
-      function addSmiley(cx, cy, r, rotateDeg) {
-        const ex = r * 0.30, ey = r * 0.22, er = r * 0.10;
-        const sx = r * 0.50, smileY = cy + r * 0.15;
-        const smileRx = r * 0.58, smileRy = r * 0.42;
+      function catmullRom(pts) {
+        let d = `M ${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
+        for (let i = 0; i < pts.length - 1; i++) {
+          const p0 = pts[Math.max(0, i - 1)];
+          const p1 = pts[i];
+          const p2 = pts[i + 1];
+          const p3 = pts[Math.min(pts.length - 1, i + 2)];
+          const cp1x = p1[0] + (p2[0] - p0[0]) / 6;
+          const cp1y = p1[1] + (p2[1] - p0[1]) / 6;
+          const cp2x = p2[0] - (p3[0] - p1[0]) / 6;
+          const cp2y = p2[1] - (p3[1] - p1[1]) / 6;
+          d += ` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;
+        }
+        return d;
+      }
 
+      // ── LEFT: red dotted line tracing the hand-drawn shape ──
+      // Circle loop centred at (lx, ly) with radius r, matching the smiley position.
+      const lx = 195, ly = H * 0.22, r = 90;
+
+      const redPts = [
+        // S-curves coming down toward the loop
+        [lx - 50, ly - r - 240],
+        [lx - 95, ly - r - 165],
+        [lx - 30, ly - r -  85],
+        [lx - 18, ly - r -  22],
+        // ── main circle loop ──
+        [lx,      ly - r],           // 12 o'clock  (crossing — visit 1, going down)
+        [lx + r,  ly],               // 3 o'clock
+        [lx,      ly + r],           // 6 o'clock
+        [lx - r,  ly],               // 9 o'clock
+        [lx,      ly - r],           // 12 o'clock  (crossing — visit 2, going right)
+        // ── exit to the right + small loop ──
+        [lx + r * 0.75, ly - r * 0.22],
+        [lx + r + 18,   ly + r * 0.45],
+        [lx + r +  5,   ly + r * 0.88],
+        [lx + r * 0.50, ly + r * 0.62],
+        [lx + r * 0.75, ly - r * 0.18],  // small loop crossing
+        [lx + r * 0.85, ly + r * 0.35],
+        // ── S-curves continuing below ──
+        [lx + 25,  ly + r * 1.9],
+        [lx - 30,  ly + r * 2.9],
+        [lx + 20,  ly + r * 3.9],
+        [lx - 10,  ly + r * 4.9],
+      ];
+
+      const leftPath = document.getElementById('spiral-path');
+      leftPath.setAttribute('fill', 'none');
+      leftPath.setAttribute('stroke', '#dc2626');
+      leftPath.setAttribute('stroke-width', '2');
+      leftPath.setAttribute('d', catmullRom(redPts));
+
+      const llen = leftPath.getTotalLength();
+      leftPath.style.strokeDasharray  = '7 9';
+      leftPath.style.strokeDashoffset = llen;
+      leftPath.style.transition = 'stroke-dashoffset 3.5s ease-in-out';
+      requestAnimationFrame(() => { leftPath.style.strokeDashoffset = 0; });
+
+      // ── RIGHT: blue smiley (unchanged) ──
+      function addSmiley(cx, cy, sr, rotateDeg) {
+        const ex = sr*0.30, ey = sr*0.22, er = sr*0.10;
+        const sx = sr*0.50, smileY = cy + sr*0.15;
+        const smileRx = sr*0.58, smileRy = sr*0.42;
         const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         g.setAttribute('class', 'smiley-extra');
         g.setAttribute('transform', `rotate(${rotateDeg}, ${cx}, ${cy})`);
-
-        // Face circle — dashed, no fill
         const face = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         face.setAttribute('fill', 'none');
         face.setAttribute('stroke', '#2563eb');
         face.setAttribute('stroke-width', '2');
         face.setAttribute('stroke-dasharray', '7 9');
-        face.setAttribute('d',
-          `M ${cx} ${cy - r} A ${r} ${r} 0 1 1 ${cx} ${cy + r} A ${r} ${r} 0 1 1 ${cx} ${cy - r}`
-        );
+        face.setAttribute('d', `M ${cx} ${cy-sr} A ${sr} ${sr} 0 1 1 ${cx} ${cy+sr} A ${sr} ${sr} 0 1 1 ${cx} ${cy-sr}`);
         g.appendChild(face);
-
-        // Eyes — solid filled circles
         [-ex, ex].forEach(dx => {
           const eye = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-          eye.setAttribute('cx', cx + dx);
-          eye.setAttribute('cy', cy - ey);
-          eye.setAttribute('r', er);
-          eye.setAttribute('fill', '#2563eb');
+          eye.setAttribute('cx', cx + dx); eye.setAttribute('cy', cy - ey);
+          eye.setAttribute('r', er); eye.setAttribute('fill', '#2563eb');
           g.appendChild(eye);
         });
-
-        // Smile — solid stroke, no dash
         const smile = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         smile.setAttribute('fill', 'none');
         smile.setAttribute('stroke', '#2563eb');
         smile.setAttribute('stroke-width', '6');
         smile.setAttribute('stroke-linecap', 'round');
-        smile.setAttribute('d',
-          `M ${cx - sx} ${smileY} A ${smileRx} ${smileRy} 0 0 0 ${cx + sx} ${smileY}`
-        );
+        smile.setAttribute('d', `M ${cx-sx} ${smileY} A ${smileRx} ${smileRy} 0 0 0 ${cx+sx} ${smileY}`);
         g.appendChild(smile);
-
         svg.appendChild(g);
       }
 
-      // Hide the base path (we build everything dynamically above)
-      const left = document.getElementById('spiral-path');
-      left.setAttribute('d', '');
-      let right = document.getElementById('spiral-path-right');
-      if (!right) {
-        right = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        right.setAttribute('id', 'spiral-path-right');
-        svg.appendChild(right);
+      let rightPath = document.getElementById('spiral-path-right');
+      if (!rightPath) {
+        rightPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        rightPath.setAttribute('id', 'spiral-path-right');
+        svg.appendChild(rightPath);
       }
-      right.setAttribute('d', '');
+      rightPath.setAttribute('d', '');
 
-      const r = 90;
-      addSmiley(195,     H * 0.22, r, -15);  // left: higher, tilted left
-      addSmiley(W - 195, H * 0.52, r,  15);  // right: lower, tilted right
+      addSmiley(W - 195, H * 0.52, 90, 15);
     }
 
     window.addEventListener('load', buildSpiral);
