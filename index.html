@@ -259,32 +259,6 @@
       border: 1px solid var(--border);
     }
 
-    /* ── Bottom row: PCB center, Minimize right ── */
-    .bottom-row {
-      grid-column: 1 / -1;
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 16px;
-    }
-
-    .pcb-card {
-      grid-column: 2;
-      border-color: var(--border-blue);
-      box-shadow: 0 0 0 1px var(--border-blue), 0 4px 24px rgba(37,99,235,0.12);
-      position: relative;
-    }
-
-    .pcb-card::after {
-      content: '';
-      position: absolute;
-      top: -2px; left: 24px; right: 24px;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--blue-mid), transparent);
-      border-radius: 2px;
-    }
-
-    #minimize-card { grid-column: 3; }
-
     /* section wrapper needs position:relative for SVG overlay */
     #projects { position: relative; }
 
@@ -783,19 +757,17 @@
         </div>
       </div>
 
-      <!-- PCB centered in bottom row -->
-      <div class="bottom-row fade-in">
-        <div class="project-card pcb-card" id="pcb-card">
-          <div class="project-icon"><i class="fa-solid fa-microchip"></i></div>
-          <h3>Custom PCB Design</h3>
-          <img src="kicad-board.png" alt="KiCad PCB layout" style="width:100%;border-radius:8px;margin-top:4px;border:1px solid var(--border);">
-          <p>Designed a custom circuit board in KiCad — routing connectors, signal traces, and mounting holes for a multi-channel board spanning ~95mm. Exported DXF flat patterns for fabrication.</p>
-          <div class="project-tech">
-            <span class="tech-pill">KiCad</span>
-            <span class="tech-pill">PCB Layout</span>
-            <span class="tech-pill">DXF Export</span>
-            <span class="tech-pill">Electronics</span>
-          </div>
+      <!-- KiCad PCB -->
+      <div class="project-card fade-in" id="pcb-card">
+        <div class="project-icon"><i class="fa-solid fa-microchip"></i></div>
+        <h3>Custom PCB Design</h3>
+        <img src="kicad-board.png" alt="KiCad PCB layout" style="width:100%;border-radius:8px;margin-top:4px;border:1px solid var(--border);">
+        <p>Designed a custom circuit board in KiCad — routing connectors, signal traces, and mounting holes for a multi-channel board spanning ~95mm. Exported DXF flat patterns for fabrication.</p>
+        <div class="project-tech">
+          <span class="tech-pill">KiCad</span>
+          <span class="tech-pill">PCB Layout</span>
+          <span class="tech-pill">DXF Export</span>
+          <span class="tech-pill">Electronics</span>
         </div>
       </div>
 
@@ -908,77 +880,74 @@
       const minimize = document.getElementById('minimize-card');
       if (!svg || !music || !stack || !minimize) return;
 
-      const base = section.getBoundingClientRect();
-      const scrollY = window.scrollY - section.getBoundingClientRect().top - window.scrollY + section.offsetTop;
-
-      const toLocal = el => {
-        const r = el.getBoundingClientRect();
-        const sectionTop = section.getBoundingClientRect().top;
+      // Use offsetTop/offsetLeft relative to the section for scroll-safe coords
+      const pos = el => {
+        let top = 0, left = 0, node = el;
+        while (node && node !== section) {
+          top  += node.offsetTop;
+          left += node.offsetLeft;
+          node  = node.offsetParent;
+        }
         return {
-          top:    r.top    - sectionTop,
-          bottom: r.bottom - sectionTop,
-          left:   r.left   - base.left,
-          right:  r.right  - base.left,
-          cx:     r.left + r.width  / 2 - base.left,
-          cy:     r.top  + r.height / 2 - sectionTop,
+          top,
+          bottom: top  + el.offsetHeight,
+          left,
+          right:  left + el.offsetWidth,
+          cx:     left + el.offsetWidth  / 2,
+          cy:     top  + el.offsetHeight / 2,
         };
       };
 
-      const m = toLocal(music);
-      const s = toLocal(stack);
-      const w = toLocal(minimize);
+      const m = pos(music);
+      const s = pos(stack);
+      const w = pos(minimize);
 
-      const defs = `<defs>
+      svg.innerHTML = `<defs>
         <linearGradient id="lg1" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#2563eb" stop-opacity="0.08"/>
-          <stop offset="50%" stop-color="#2563eb" stop-opacity="0.5"/>
-          <stop offset="100%" stop-color="#2563eb" stop-opacity="0.08"/>
+          <stop offset="0%"   stop-color="#2563eb" stop-opacity="0.6"/>
+          <stop offset="100%" stop-color="#2563eb" stop-opacity="0.1"/>
         </linearGradient>
         <filter id="glow">
-          <feGaussianBlur stdDeviation="2.5" result="blur"/>
-          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          <feGaussianBlur stdDeviation="2" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
         </filter>
       </defs>`;
-      svg.innerHTML = defs;
 
-      const mkCurve = (x1,y1,x2,y2) => {
-        const cy = (y1 + y2) / 2;
-        return `M ${x1} ${y1} C ${x1} ${cy}, ${x2} ${cy}, ${x2} ${y2}`;
+      const curve = (x1,y1,x2,y2) => {
+        const mid = (y1+y2)/2;
+        return `M${x1} ${y1} C${x1} ${mid},${x2} ${mid},${x2} ${y2}`;
       };
 
-      const makePath = (d) => {
+      const addPath = (d) => {
         const p = document.createElementNS('http://www.w3.org/2000/svg','path');
-        p.setAttribute('d', d);
-        p.setAttribute('stroke', 'url(#lg1)');
-        p.setAttribute('stroke-width', '1.5');
-        p.setAttribute('fill', 'none');
-        p.setAttribute('stroke-dasharray', '6 4');
-        p.setAttribute('filter', 'url(#glow)');
-        return p;
+        p.setAttribute('d',d); p.setAttribute('stroke','url(#lg1)');
+        p.setAttribute('stroke-width','1.5'); p.setAttribute('fill','none');
+        p.setAttribute('stroke-dasharray','6 4'); p.setAttribute('filter','url(#glow)');
+        svg.appendChild(p);
       };
 
-      const makeDot = (cx, cy) => {
+      const addDot = (cx,cy) => {
         const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
-        c.setAttribute('cx', cx); c.setAttribute('cy', cy);
-        c.setAttribute('r', '3.5'); c.setAttribute('fill', '#2563eb');
-        c.setAttribute('filter', 'url(#glow)');
-        return c;
+        c.setAttribute('cx',cx); c.setAttribute('cy',cy);
+        c.setAttribute('r','4'); c.setAttribute('fill','#2563eb');
+        c.setAttribute('filter','url(#glow)');
+        svg.appendChild(c);
       };
 
-      // Music widget bottom → Smart Stack top
-      svg.appendChild(makePath(mkCurve(m.cx * 0.6, m.bottom, s.cx, s.top)));
-      svg.appendChild(makeDot(s.cx, s.top));
+      // Line from music bottom-left → stack top-center
+      addPath(curve(m.left + m.right*0.25 - m.left*0.25, m.bottom, s.cx, s.top));
+      addDot(s.cx, s.top);
 
-      // Music widget bottom → Windows Minimize top
-      svg.appendChild(makePath(mkCurve(m.cx * 1.35, m.bottom, w.cx, w.top)));
-      svg.appendChild(makeDot(w.cx, w.top));
+      // Line from music bottom-right → minimize top-center
+      addPath(curve(m.right - (m.right-m.left)*0.25, m.bottom, w.cx, w.top));
+      addDot(w.cx, w.top);
 
-      // Dot at music widget bottom
-      svg.appendChild(makeDot(m.cx * 0.6,  m.bottom));
-      svg.appendChild(makeDot(m.cx * 1.35, m.bottom));
+      // Origin dots on music card bottom
+      addDot(m.left + m.right*0.25 - m.left*0.25, m.bottom);
+      addDot(m.right - (m.right-m.left)*0.25,      m.bottom);
     }
 
-    window.addEventListener('load', drawConnectors);
+    window.addEventListener('load', () => setTimeout(drawConnectors, 100));
     window.addEventListener('resize', drawConnectors);
   </script>
 
