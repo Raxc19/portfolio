@@ -1018,33 +1018,34 @@
 
       svg.style.height = H + 'px';
 
-      // Waypoints [x from left edge, fraction of total height]
-      // S-curves with a smooth 8-point oval loop at ~26% down
+      // Waypoints [x from left edge, fraction of total height].
+      // For a real crossing loop, the path visits x≈195, y≈0.208 TWICE:
+      // once going downward (approach) and once coming up from 9-o'clock.
+      // That makes the two strokes actually intersect on screen.
       const wpts = [
         [195, 0.000],
-        [232, 0.055],
-        [195, 0.105],
-        [158, 0.155],
-        [195, 0.200],  // approaching loop
-        // 8-point clockwise oval loop (inward = higher x for left side)
-        [195, 0.232],  // 12 o'clock (enter)
-        [232, 0.248],  // 1:30
-        [248, 0.270],  // 3 o'clock
-        [232, 0.292],  // 4:30
-        [195, 0.308],  // 6 o'clock
-        [158, 0.292],  // 7:30
-        [142, 0.270],  // 9 o'clock
-        [158, 0.248],  // 10:30
-        [196, 0.233],  // 12 o'clock (crossing — x+1 to avoid exact duplicate)
-        [200, 0.252],  // exit deflection
-        [195, 0.390],  // well below loop
-        [232, 0.480],
-        [195, 0.565],
-        [158, 0.650],
-        [195, 0.735],
-        [230, 0.820],
-        [195, 0.900],
-        [165, 0.950],
+        [218, 0.058],
+        [195, 0.110],
+        [172, 0.160],
+        [195, 0.208],   // ← approach arrives here going DOWN (visit 1 of crossing)
+        [195, 0.248],   // entering loop: continue downward
+        [228, 0.268],   // NE
+        [258, 0.310],   // 3 o'clock (rightmost)
+        [228, 0.352],   // SE
+        [195, 0.372],   // 6 o'clock (bottom)
+        [162, 0.352],   // SW
+        [132, 0.310],   // 9 o'clock (leftmost)
+        [162, 0.268],   // NW, arcing back up
+        [195, 0.208],   // ← arc arrives here going RIGHT-UP (visit 2 = crossing!)
+        [196, 0.248],   // exit: deflect slightly right then curve back down
+        [195, 0.415],   // below loop, continuing S-curves
+        [218, 0.500],
+        [195, 0.585],
+        [172, 0.670],
+        [195, 0.750],
+        [216, 0.830],
+        [195, 0.910],
+        [175, 0.955],
         [195, 1.000],
       ];
 
