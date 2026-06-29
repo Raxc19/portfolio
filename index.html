@@ -1050,7 +1050,7 @@
         smile.setAttribute('class', 'smiley-extra');
         smile.setAttribute('fill', 'none');
         smile.setAttribute('stroke', '#2563eb');
-        smile.setAttribute('stroke-width', '2.5');
+        smile.setAttribute('stroke-width', '4.5');
         smile.setAttribute('stroke-linecap', 'round');
         smile.setAttribute('d',
           `M ${cx - sx} ${smileY} A ${smileRx} ${smileRy} 0 0 0 ${cx + sx} ${smileY}`
@@ -1069,9 +1069,9 @@
       }
       right.setAttribute('d', '');
 
-      const cy = H * 0.35, r = 90;
-      addSmiley(195, cy, r);
-      addSmiley(W - 195, cy, r);
+      const r = 90;
+      addSmiley(195,     H * 0.22, r);  // left: higher
+      addSmiley(W - 195, H * 0.52, r);  // right: lower
     }
 
     window.addEventListener('load', buildSpiral);
