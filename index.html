@@ -1109,32 +1109,15 @@
       const left = document.getElementById('spiral-path');
       left.setAttribute('d', crPath(tracedPts));
 
-      // ── Right: traced path ──
-      const rightTracedPts = [
-        [1639, 898],
-        [1796, 1309],
-        [1543, 1589],
-        [1599, 2161],
-        [1733, 2558],
-        [1573, 2600],
-        [1551, 2524],
-        [1590, 2499],
-        [1640, 2538],
-        [1608, 2678],
-        [1635, 2852],
-        [1737, 2998],
-        [1788, 3101],
-        [1653, 3452],
-        [1557, 3450],
-        [1581, 3390],
-        [1725, 3424],
-        [1677, 3674],
-        [1587, 3969],
-        [1773, 4464],
-        [1511, 4704],
-        [1719, 5051],
-        [1658, 5554],
+      // ── Right: traced path (offsets from right edge so it scales with viewport) ──
+      const rightTracedRel = [
+        [281, 898],[124, 1309],[377, 1589],[321, 2161],[187, 2558],
+        [347, 2600],[369, 2524],[330, 2499],[280, 2538],[312, 2678],
+        [285, 2852],[183, 2998],[132, 3101],[267, 3452],[363, 3450],
+        [339, 3390],[195, 3424],[243, 3674],[333, 3969],[147, 4464],
+        [409, 4704],[201, 5051],[262, 5554],
       ];
+      const rightTracedPts = rightTracedRel.map(([dx, y]) => [W - dx, y]);
 
       const right = document.getElementById('spiral-path-right');
       right.setAttribute('d', crPath(rightTracedPts));
