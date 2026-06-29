@@ -1018,36 +1018,39 @@
 
       svg.style.height = H + 'px';
 
-      // The crossing trick: the approach stays vertical at x=195 from
-      // waypoint [195,0.205] down to [195,0.250]. The loop's 12-o'clock
-      // lands at [195,0.218] — inside that vertical stretch — going
-      // near-horizontal. Two different directions at the same x,y = real cross.
+      // Crossing is guaranteed by making the approach a true vertical at x=195
+      // (three consecutive waypoints at x=195), then having the loop's return
+      // arc cross that vertical line going left→right at y≈0.200.
+      // The approach is going perfectly DOWN at x=195; the return is going
+      // nearly HORIZONTAL at x=195 → they meet at ~90° = real lasso cross.
       const wpts = [
         [195, 0.000],
-        [215, 0.058],
-        [195, 0.112],
-        [175, 0.162],
-        [195, 0.205],   // approach: x=195, path now nearly vertical going down
-        [195, 0.250],   // loop entry: depart rightward into loop
-        [252, 0.272],   // NE
-        [264, 0.290],   // E (rightmost)
-        [252, 0.310],   // SE
-        [195, 0.332],   // S (bottom)
-        [138, 0.310],   // SW
-        [126, 0.290],   // W (leftmost)
-        [138, 0.270],   // NW
-        [170, 0.222],   // arcing up toward crossing
-        [195, 0.218],   // ← CROSSING: loop arrives ~horizontal; approach here is vertical
-        [215, 0.228],   // exit: go right then curve back down
-        [222, 0.258],
-        [195, 0.415],   // below loop
-        [215, 0.500],
-        [195, 0.585],
-        [175, 0.668],
-        [195, 0.748],
-        [215, 0.828],
-        [195, 0.908],
-        [178, 0.955],
+        [215, 0.055],
+        [195, 0.108],
+        [175, 0.155],
+        [195, 0.175],   // transition: x back to 195
+        [195, 0.200],   // CROSSING visit-1: purely vertical, going DOWN
+        [195, 0.250],   // loop entry: continue down, then depart right
+        // clockwise oval loop
+        [255, 0.278],   // NE
+        [272, 0.308],   // E (rightmost)
+        [255, 0.338],   // SE
+        [195, 0.358],   // S (bottom)
+        [135, 0.338],   // SW
+        [118, 0.308],   // W (leftmost)
+        [135, 0.278],   // NW, arcing up
+        [170, 0.210],   // approaching crossing from left
+        [195, 0.200],   // CROSSING visit-2: nearly HORIZONTAL going right → 90° cross!
+        [215, 0.215],   // exit deflection
+        [220, 0.258],   // continue down
+        [195, 0.420],   // below loop, S-curves resume
+        [215, 0.505],
+        [195, 0.590],
+        [175, 0.672],
+        [195, 0.752],
+        [215, 0.832],
+        [195, 0.912],
+        [178, 0.958],
         [195, 1.000],
       ];
 
