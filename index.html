@@ -674,7 +674,7 @@
         <feGaussianBlur stdDeviation="0.6"/>
       </filter>
     </defs>
-    <path id="spiral-path" fill="none" stroke="#2563eb" stroke-width="2"/>
+    <path id="spiral-path" fill="none" stroke="url(#spiralGrad)" stroke-width="1.8" filter="url(#spiralBlur)"/>
   </svg>
 
   <!-- Nav -->
@@ -1009,12 +1009,36 @@
 
   <script>
     function buildSpiral() {
-      const svg = document.getElementById('page-spiral');
-      const W   = document.documentElement.scrollWidth;
-      const H   = document.documentElement.scrollHeight;
+      const svg    = document.getElementById('page-spiral');
+      const W      = document.documentElement.scrollWidth;
+      const H      = document.documentElement.scrollHeight;
+      const nav    = document.querySelector('nav');
+      const startY = nav ? nav.offsetHeight : 0;
+      const totalH = H - startY;
+
       svg.style.height = H + 'px';
 
-      svg.querySelectorAll('.smiley-extra').forEach(el => el.remove());
+      // Waypoints [x from left edge, fraction of total height]
+      // Produces organic S-curves with one small loop around 22-27%
+      const wpts = [
+        [40, 0.00],
+        [64, 0.06],
+        [42, 0.12],
+        [20, 0.17],
+        [38, 0.21],
+        [70, 0.25],  // loop: swing inward
+        [58, 0.20],  // loop: arc back up (crosses path, forms loop)
+        [26, 0.26],  // loop: exit left
+        [42, 0.32],
+        [70, 0.41],
+        [42, 0.50],
+        [18, 0.59],
+        [42, 0.68],
+        [66, 0.77],
+        [42, 0.86],
+        [24, 0.93],
+        [40, 1.00],
+      ];
 
       function catmullRom(pts) {
         let d = `M ${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
@@ -1032,88 +1056,36 @@
         return d;
       }
 
-      // ── LEFT: red dotted line tracing the hand-drawn shape ──
-      // Circle loop centred at (lx, ly) with radius r, matching the smiley position.
-      const lx = 195, ly = H * 0.22, r = 90;
-
-      const redPts = [
-        // S-curves coming down toward the loop
-        [lx - 50, ly - r - 240],
-        [lx - 95, ly - r - 165],
-        [lx - 30, ly - r -  85],
-        [lx - 18, ly - r -  22],
-        // ── main circle loop ──
-        [lx,      ly - r],           // 12 o'clock  (crossing — visit 1, going down)
-        [lx + r,  ly],               // 3 o'clock
-        [lx,      ly + r],           // 6 o'clock
-        [lx - r,  ly],               // 9 o'clock
-        [lx,      ly - r],           // 12 o'clock  (crossing — visit 2, going right)
-        // ── exit to the right + small loop ──
-        [lx + r * 0.75, ly - r * 0.22],
-        [lx + r + 18,   ly + r * 0.45],
-        [lx + r +  5,   ly + r * 0.88],
-        [lx + r * 0.50, ly + r * 0.62],
-        [lx + r * 0.75, ly - r * 0.18],  // small loop crossing
-        [lx + r * 0.85, ly + r * 0.35],
-        // ── S-curves continuing below ──
-        [lx + 25,  ly + r * 1.9],
-        [lx - 30,  ly + r * 2.9],
-        [lx + 20,  ly + r * 3.9],
-        [lx - 10,  ly + r * 4.9],
-      ];
-
-      const leftPath = document.getElementById('spiral-path');
-      leftPath.setAttribute('fill', 'none');
-      leftPath.setAttribute('stroke', '#dc2626');
-      leftPath.setAttribute('stroke-width', '2');
-      leftPath.setAttribute('d', catmullRom(redPts));
-
-      const llen = leftPath.getTotalLength();
-      leftPath.style.strokeDasharray  = '7 9';
-      leftPath.style.strokeDashoffset = llen;
-      leftPath.style.transition = 'stroke-dashoffset 3.5s ease-in-out';
-      requestAnimationFrame(() => { leftPath.style.strokeDashoffset = 0; });
-
-      // ── RIGHT: blue smiley (unchanged) ──
-      function addSmiley(cx, cy, sr, rotateDeg) {
-        const ex = sr*0.30, ey = sr*0.22, er = sr*0.10;
-        const sx = sr*0.50, smileY = cy + sr*0.15;
-        const smileRx = sr*0.58, smileRy = sr*0.42;
-        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        g.setAttribute('class', 'smiley-extra');
-        g.setAttribute('transform', `rotate(${rotateDeg}, ${cx}, ${cy})`);
-        const face = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        face.setAttribute('fill', 'none');
-        face.setAttribute('stroke', '#2563eb');
-        face.setAttribute('stroke-width', '2');
-        face.setAttribute('stroke-dasharray', '7 9');
-        face.setAttribute('d', `M ${cx} ${cy-sr} A ${sr} ${sr} 0 1 1 ${cx} ${cy+sr} A ${sr} ${sr} 0 1 1 ${cx} ${cy-sr}`);
-        g.appendChild(face);
-        [-ex, ex].forEach(dx => {
-          const eye = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-          eye.setAttribute('cx', cx + dx); eye.setAttribute('cy', cy - ey);
-          eye.setAttribute('r', er); eye.setAttribute('fill', '#2563eb');
-          g.appendChild(eye);
-        });
-        const smile = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        smile.setAttribute('fill', 'none');
-        smile.setAttribute('stroke', '#2563eb');
-        smile.setAttribute('stroke-width', '6');
-        smile.setAttribute('stroke-linecap', 'round');
-        smile.setAttribute('d', `M ${cx-sx} ${smileY} A ${smileRx} ${smileRy} 0 0 0 ${cx+sx} ${smileY}`);
-        g.appendChild(smile);
-        svg.appendChild(g);
+      function toAbsolute(wpts, side) {
+        return wpts.map(([x, fy]) => [
+          side === 'right' ? W - x : x,
+          startY + totalH * fy
+        ]);
       }
 
-      let rightPath = document.getElementById('spiral-path-right');
-      if (!rightPath) {
-        rightPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        rightPath.setAttribute('id', 'spiral-path-right');
-        svg.appendChild(rightPath);
-      }
-      rightPath.setAttribute('d', '');
+      const left = document.getElementById('spiral-path');
+      left.setAttribute('d', catmullRom(toAbsolute(wpts, 'left')));
+      left.setAttribute('stroke-width', '2');
 
-      addSmiley(W - 195, H * 0.52, 90, 15);
+      let right = document.getElementById('spiral-path-right');
+      if (!right) {
+        right = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        right.setAttribute('id', 'spiral-path-right');
+        right.setAttribute('fill', 'none');
+        right.setAttribute('stroke', 'url(#spiralGrad)');
+        right.setAttribute('stroke-width', '2');
+        right.setAttribute('filter', 'url(#spiralBlur)');
+        svg.appendChild(right);
+      }
+      right.setAttribute('d', catmullRom(toAbsolute(wpts, 'right')));
+
+      [left, right].forEach(p => {
+        const len = p.getTotalLength();
+        p.style.strokeDasharray  = '7 9';
+        p.style.strokeDashoffset = len;
+        p.style.transition = 'stroke-dashoffset 4s ease-in-out';
+        requestAnimationFrame(() => { p.style.strokeDashoffset = 0; });
+      });
     }
 
     window.addEventListener('load', buildSpiral);
