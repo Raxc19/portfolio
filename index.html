@@ -674,7 +674,7 @@
         <feGaussianBlur stdDeviation="0.6"/>
       </filter>
     </defs>
-    <path id="spiral-path" fill="none" stroke="url(#spiralGrad)" stroke-width="1.8" filter="url(#spiralBlur)"/>
+    <path id="spiral-path" fill="none" stroke="#2563eb" stroke-width="2"/>
   </svg>
 
   <!-- Nav -->
@@ -1028,8 +1028,8 @@
         d += ` M ${cx - ex} ${cy - ey - er} A ${er} ${er} 0 1 1 ${cx - ex} ${cy - ey + er} A ${er} ${er} 0 1 1 ${cx - ex} ${cy - ey - er}`;
         // right eye
         d += ` M ${cx + ex} ${cy - ey - er} A ${er} ${er} 0 1 1 ${cx + ex} ${cy - ey + er} A ${er} ${er} 0 1 1 ${cx + ex} ${cy - ey - er}`;
-        // smile
-        d += ` M ${cx - sx} ${smileY} A ${smileRx} ${smileRy} 0 0 1 ${cx + sx} ${smileY}`;
+        // smile — sweep=0 curves downward in SVG (y-down) coords = happy
+        d += ` M ${cx - sx} ${smileY} A ${smileRx} ${smileRy} 0 0 0 ${cx + sx} ${smileY}`;
         return d;
       }
 
@@ -1045,9 +1045,8 @@
         right = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         right.setAttribute('id', 'spiral-path-right');
         right.setAttribute('fill', 'none');
-        right.setAttribute('stroke', 'url(#spiralGrad)');
+        right.setAttribute('stroke', '#2563eb');
         right.setAttribute('stroke-width', '2');
-        right.setAttribute('filter', 'url(#spiralBlur)');
         svg.appendChild(right);
       }
       right.setAttribute('d', smileyPath(W - 195, cy, r));
