@@ -1061,9 +1061,37 @@
         svg.appendChild(g);
       }
 
-      // Hide the base path (we build everything dynamically above)
+      // ── Left: user-traced path ──
+      const tracedPts = [
+        [286, 900],[158,1005],[165,1149],[260,1299],[393,1323],
+        [350,1453],[237,1455],[263,1399],[312,1435],[255,1720],
+        [113,1957],[138,2061],[348,2174],[211,2484],[98,2800],
+        [248,3074],[419,2967],[341,2841],[231,2979],[222,3427],
+        [365,3833],[134,4593],[280,5533],
+      ];
+
+      function crPath(pts) {
+        let d = `M ${pts[0][0]} ${pts[0][1]}`;
+        for (let i = 0; i < pts.length - 1; i++) {
+          const p0=pts[Math.max(0,i-1)],p1=pts[i],p2=pts[i+1],p3=pts[Math.min(pts.length-1,i+2)];
+          const c1x=p1[0]+(p2[0]-p0[0])/6, c1y=p1[1]+(p2[1]-p0[1])/6;
+          const c2x=p2[0]-(p3[0]-p1[0])/6, c2y=p2[1]-(p3[1]-p1[1])/6;
+          d += ` C ${c1x.toFixed(1)} ${c1y.toFixed(1)},${c2x.toFixed(1)} ${c2y.toFixed(1)},${p2[0]} ${p2[1]}`;
+        }
+        return d;
+      }
+
       const left = document.getElementById('spiral-path');
-      left.setAttribute('d', '');
+      left.setAttribute('fill', 'none');
+      left.setAttribute('stroke', '#2563eb');
+      left.setAttribute('stroke-width', '2');
+      left.setAttribute('stroke-dasharray', '7 9');
+      left.setAttribute('stroke-linecap', 'round');
+      left.setAttribute('d', crPath(tracedPts));
+      left.style.strokeDashoffset = '';
+      left.style.transition = '';
+
+      // ── Right: smiley ──
       let right = document.getElementById('spiral-path-right');
       if (!right) {
         right = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -1072,9 +1100,7 @@
       }
       right.setAttribute('d', '');
 
-      const r = 90;
-      addSmiley(195,     H * 0.22, r, -15);  // left: higher, tilted left
-      addSmiley(W - 195, H * 0.52, r,  15);  // right: lower, tilted right
+      addSmiley(W - 195, H * 0.52, 90, 15);
     }
 
     window.addEventListener('load', buildSpiral);
