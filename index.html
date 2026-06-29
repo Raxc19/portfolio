@@ -680,7 +680,7 @@
       <!-- Mask hides the traced path inside the left smiley circle -->
       <mask id="leftPathMask" maskUnits="userSpaceOnUse">
         <rect id="leftMaskRect" x="0" y="0" width="2000" height="9999" fill="white"/>
-        <circle id="leftMaskCircle" cx="195" cy="500" r="96" fill="black"/>
+        <circle id="leftMaskCircle" cx="230" cy="500" r="96" fill="black"/>
       </mask>
       <!-- Mask hides the traced path inside the right smiley circle -->
       <mask id="rightPathMask" maskUnits="userSpaceOnUse">
@@ -1103,7 +1103,7 @@
       const leftCY  = H * 0.22;
       const rightCY = H * 0.52;
       document.getElementById('leftMaskCircle').setAttribute('cy', leftCY);
-      document.getElementById('rightMaskCircle').setAttribute('cx', W - 195);
+      document.getElementById('rightMaskCircle').setAttribute('cx', W - 230);
       document.getElementById('rightMaskCircle').setAttribute('cy', rightCY);
 
       const left = document.getElementById('spiral-path');
@@ -1139,8 +1139,8 @@
       const right = document.getElementById('spiral-path-right');
       right.setAttribute('d', crPath(rightTracedPts));
 
-      addSmiley(195,     H * 0.22, 90, -15);
-      addSmiley(W - 195, H * 0.52, 90,  15);
+      addSmiley(230,     H * 0.22, 90, -15);
+      addSmiley(W - 230, H * 0.52, 90,  15);
     }
 
     window.addEventListener('load', buildSpiral);
