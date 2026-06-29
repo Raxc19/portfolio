@@ -1082,14 +1082,7 @@
       }
 
       const left = document.getElementById('spiral-path');
-      left.setAttribute('fill', 'none');
-      left.setAttribute('stroke', '#2563eb');
-      left.setAttribute('stroke-width', '2');
-      left.setAttribute('stroke-dasharray', '7 9');
-      left.setAttribute('stroke-linecap', 'round');
-      left.setAttribute('d', crPath(tracedPts));
-      left.style.strokeDashoffset = '';
-      left.style.transition = '';
+      left.setAttribute('d', '');
 
       // ── Right: smiley ──
       let right = document.getElementById('spiral-path-right');
