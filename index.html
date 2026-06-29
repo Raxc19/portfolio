@@ -707,8 +707,8 @@
         </div>
       </div>
 
-      <!-- Smart Stack Widget -->
-      <div class="project-card fade-in">
+      <!-- Smart Stack + Windows Minimize side by side, tied to music widget -->
+      <div class="project-card fade-in" id="smart-stack-card">
         <div class="project-icon"><i class="fa-solid fa-layer-group"></i></div>
         <h3>Smart Stack Widget</h3>
         <p>An iOS-style stacked card widget for Windows. Cards fan out and snap with smooth physics animations in a compact 220×370 window. Part of a custom desktop widget ecosystem with a widget picker UI.</p>
@@ -716,6 +716,18 @@
           <span class="tech-pill">HTML/CSS</span>
           <span class="tech-pill">JavaScript</span>
           <span class="tech-pill">CSS Animations</span>
+        </div>
+      </div>
+
+      <div class="project-card fade-in" id="minimize-card">
+        <div class="project-icon"><i class="fa-solid fa-window-maximize"></i></div>
+        <h3>Windows Minimize Animator</h3>
+        <p>A native Windows utility that adds smooth animated minimize/restore effects to any window. Written in C# as a helper DLL with a PowerShell driver — hooks into Win32 to intercept window messages and inject custom easing curves.</p>
+        <div class="project-tech">
+          <span class="tech-pill">C#</span>
+          <span class="tech-pill">Win32 API</span>
+          <span class="tech-pill">PowerShell</span>
+          <span class="tech-pill">P/Invoke</span>
         </div>
       </div>
 
@@ -771,7 +783,7 @@
         </div>
       </div>
 
-      <!-- Bottom row: centered PCB + right Windows Minimize -->
+      <!-- PCB centered in bottom row -->
       <div class="bottom-row fade-in">
         <div class="project-card pcb-card" id="pcb-card">
           <div class="project-icon"><i class="fa-solid fa-microchip"></i></div>
@@ -783,17 +795,6 @@
             <span class="tech-pill">PCB Layout</span>
             <span class="tech-pill">DXF Export</span>
             <span class="tech-pill">Electronics</span>
-          </div>
-        </div>
-        <div class="project-card" id="minimize-card">
-          <div class="project-icon"><i class="fa-solid fa-window-maximize"></i></div>
-          <h3>Windows Minimize Animator</h3>
-          <p>A native Windows utility that adds smooth animated minimize/restore effects to any window. Written in C# as a helper DLL with a PowerShell driver — hooks into Win32 to intercept window messages and inject custom easing curves.</p>
-          <div class="project-tech">
-            <span class="tech-pill">C#</span>
-            <span class="tech-pill">Win32 API</span>
-            <span class="tech-pill">PowerShell</span>
-            <span class="tech-pill">P/Invoke</span>
           </div>
         </div>
       </div>
@@ -902,72 +903,79 @@
     function drawConnectors() {
       const svg      = document.getElementById('connector-svg');
       const section  = document.getElementById('projects');
-      const pcb      = document.getElementById('pcb-card');
       const music    = document.querySelector('.project-card.featured');
-      if (!svg || !pcb || !music) return;
+      const stack    = document.getElementById('smart-stack-card');
+      const minimize = document.getElementById('minimize-card');
+      if (!svg || !music || !stack || !minimize) return;
 
-      svg.innerHTML = '';
       const base = section.getBoundingClientRect();
+      const scrollY = window.scrollY - section.getBoundingClientRect().top - window.scrollY + section.offsetTop;
 
       const toLocal = el => {
         const r = el.getBoundingClientRect();
+        const sectionTop = section.getBoundingClientRect().top;
         return {
-          top:    r.top    - base.top  + section.scrollTop,
-          bottom: r.bottom - base.top  + section.scrollTop,
+          top:    r.top    - sectionTop,
+          bottom: r.bottom - sectionTop,
           left:   r.left   - base.left,
           right:  r.right  - base.left,
-          cx:     r.left + r.width / 2 - base.left,
-          cy:     r.top  + r.height/ 2 - base.top + section.scrollTop,
+          cx:     r.left + r.width  / 2 - base.left,
+          cy:     r.top  + r.height / 2 - sectionTop,
         };
       };
 
-      const p = toLocal(pcb);
       const m = toLocal(music);
+      const s = toLocal(stack);
+      const w = toLocal(minimize);
 
       const defs = `<defs>
-        <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#2563eb" stop-opacity="0.7"/>
-          <stop offset="100%" stop-color="#2563eb" stop-opacity="0.15"/>
+        <linearGradient id="lg1" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#2563eb" stop-opacity="0.08"/>
+          <stop offset="50%" stop-color="#2563eb" stop-opacity="0.5"/>
+          <stop offset="100%" stop-color="#2563eb" stop-opacity="0.08"/>
         </linearGradient>
         <filter id="glow">
-          <feGaussianBlur stdDeviation="2" result="blur"/>
+          <feGaussianBlur stdDeviation="2.5" result="blur"/>
           <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
         </filter>
       </defs>`;
       svg.innerHTML = defs;
 
-      const mkPath = (x1,y1,x2,y2) => {
-        const mx = x1, my = (y1 + y2) / 2;
-        return `M ${x1} ${y1} C ${mx} ${my}, ${x2} ${my}, ${x2} ${y2}`;
+      const mkCurve = (x1,y1,x2,y2) => {
+        const cy = (y1 + y2) / 2;
+        return `M ${x1} ${y1} C ${x1} ${cy}, ${x2} ${cy}, ${x2} ${y2}`;
       };
 
-      // Line from top of PCB to bottom-left of music widget
-      const path1 = document.createElementNS('http://www.w3.org/2000/svg','path');
-      path1.setAttribute('d', mkPath(p.cx, p.top, m.left + m.right * 0.25, m.bottom));
-      path1.setAttribute('stroke', 'url(#lineGrad)');
-      path1.setAttribute('stroke-width', '1.5');
-      path1.setAttribute('fill', 'none');
-      path1.setAttribute('stroke-dasharray', '5 4');
-      path1.setAttribute('filter', 'url(#glow)');
+      const makePath = (d) => {
+        const p = document.createElementNS('http://www.w3.org/2000/svg','path');
+        p.setAttribute('d', d);
+        p.setAttribute('stroke', 'url(#lg1)');
+        p.setAttribute('stroke-width', '1.5');
+        p.setAttribute('fill', 'none');
+        p.setAttribute('stroke-dasharray', '6 4');
+        p.setAttribute('filter', 'url(#glow)');
+        return p;
+      };
 
-      // Line from top of PCB to bottom-right of music widget
-      const path2 = document.createElementNS('http://www.w3.org/2000/svg','path');
-      path2.setAttribute('d', mkPath(p.cx, p.top, m.left + m.right * 0.75, m.bottom));
-      path2.setAttribute('stroke', 'url(#lineGrad)');
-      path2.setAttribute('stroke-width', '1.5');
-      path2.setAttribute('fill', 'none');
-      path2.setAttribute('stroke-dasharray', '5 4');
-      path2.setAttribute('filter', 'url(#glow)');
+      const makeDot = (cx, cy) => {
+        const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        c.setAttribute('cx', cx); c.setAttribute('cy', cy);
+        c.setAttribute('r', '3.5'); c.setAttribute('fill', '#2563eb');
+        c.setAttribute('filter', 'url(#glow)');
+        return c;
+      };
 
-      // Dot at PCB top
-      const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
-      dot.setAttribute('cx', p.cx); dot.setAttribute('cy', p.top);
-      dot.setAttribute('r', '4'); dot.setAttribute('fill', '#2563eb');
-      dot.setAttribute('filter', 'url(#glow)');
+      // Music widget bottom → Smart Stack top
+      svg.appendChild(makePath(mkCurve(m.cx * 0.6, m.bottom, s.cx, s.top)));
+      svg.appendChild(makeDot(s.cx, s.top));
 
-      svg.appendChild(path1);
-      svg.appendChild(path2);
-      svg.appendChild(dot);
+      // Music widget bottom → Windows Minimize top
+      svg.appendChild(makePath(mkCurve(m.cx * 1.35, m.bottom, w.cx, w.top)));
+      svg.appendChild(makeDot(w.cx, w.top));
+
+      // Dot at music widget bottom
+      svg.appendChild(makeDot(m.cx * 0.6,  m.bottom));
+      svg.appendChild(makeDot(m.cx * 1.35, m.bottom));
     }
 
     window.addEventListener('load', drawConnectors);
