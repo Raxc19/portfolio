@@ -678,8 +678,14 @@
         <rect id="leftMaskRect" x="0" y="0" width="2000" height="9999" fill="white"/>
         <circle id="leftMaskCircle" cx="195" cy="500" r="96" fill="black"/>
       </mask>
+      <!-- Mask hides the traced path inside the right smiley circle -->
+      <mask id="rightPathMask" maskUnits="userSpaceOnUse">
+        <rect id="rightMaskRect" x="0" y="0" width="2000" height="9999" fill="white"/>
+        <circle id="rightMaskCircle" cx="1800" cy="500" r="96" fill="black"/>
+      </mask>
     </defs>
     <path id="spiral-path" fill="none" stroke="#2563eb" stroke-width="2" stroke-dasharray="7 9" stroke-linecap="round" mask="url(#leftPathMask)"/>
+    <path id="spiral-path-right" fill="none" stroke="#2563eb" stroke-width="2" stroke-dasharray="7 9" stroke-linecap="round" mask="url(#rightPathMask)"/>
   </svg>
 
   <!-- Nav -->
@@ -1086,21 +1092,45 @@
         return d;
       }
 
-      // Position mask cutout exactly over the left smiley circle
-      const leftCY = H * 0.22;
+      // Position mask cutouts over their respective smiley circles
+      const leftCY  = H * 0.22;
+      const rightCY = H * 0.52;
       document.getElementById('leftMaskCircle').setAttribute('cy', leftCY);
+      document.getElementById('rightMaskCircle').setAttribute('cx', W - 195);
+      document.getElementById('rightMaskCircle').setAttribute('cy', rightCY);
 
       const left = document.getElementById('spiral-path');
       left.setAttribute('d', crPath(tracedPts));
 
-      // ── Right: smiley ──
-      let right = document.getElementById('spiral-path-right');
-      if (!right) {
-        right = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        right.setAttribute('id', 'spiral-path-right');
-        svg.appendChild(right);
-      }
-      right.setAttribute('d', '');
+      // ── Right: traced path ──
+      const rightTracedPts = [
+        [1674, 898],
+        [1831, 1309],
+        [1578, 1589],
+        [1634, 2161],
+        [1768, 2558],
+        [1608, 2600],
+        [1586, 2524],
+        [1625, 2499],
+        [1675, 2538],
+        [1643, 2678],
+        [1670, 2852],
+        [1772, 2998],
+        [1823, 3101],
+        [1688, 3452],
+        [1592, 3450],
+        [1616, 3390],
+        [1760, 3424],
+        [1712, 3674],
+        [1622, 3969],
+        [1808, 4464],
+        [1546, 4704],
+        [1754, 5051],
+        [1693, 5554],
+      ];
+
+      const right = document.getElementById('spiral-path-right');
+      right.setAttribute('d', crPath(rightTracedPts));
 
       addSmiley(195,     H * 0.22, 90, -15);
       addSmiley(W - 195, H * 0.52, 90,  15);
