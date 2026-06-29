@@ -112,7 +112,7 @@
       from { stroke-dashoffset: 0; }
       to   { stroke-dashoffset: -16; }
     }
-    #spiral-path, #spiral-path-right {
+    #spiral-path, #spiral-path-right, .smiley-face-path {
       animation: flowDown 0.8s linear infinite;
     }
 
@@ -1052,6 +1052,7 @@
 
         // Face circle — dashed, no fill
         const face = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        face.setAttribute('class', 'smiley-face-path');
         face.setAttribute('fill', 'none');
         face.setAttribute('stroke', '#2563eb');
         face.setAttribute('stroke-width', '4');
