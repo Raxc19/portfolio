@@ -665,13 +665,13 @@
     <defs>
       <linearGradient id="spiralGrad" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
         <stop offset="0%"   stop-color="#2563eb" stop-opacity="0"/>
-        <stop offset="15%"  stop-color="#2563eb" stop-opacity="0.5"/>
-        <stop offset="50%"  stop-color="#3b82f6" stop-opacity="0.35"/>
-        <stop offset="85%"  stop-color="#2563eb" stop-opacity="0.25"/>
+        <stop offset="8%"   stop-color="#2563eb" stop-opacity="0.7"/>
+        <stop offset="50%"  stop-color="#2563eb" stop-opacity="0.55"/>
+        <stop offset="92%"  stop-color="#2563eb" stop-opacity="0.5"/>
         <stop offset="100%" stop-color="#2563eb" stop-opacity="0"/>
       </linearGradient>
       <filter id="spiralBlur">
-        <feGaussianBlur stdDeviation="1.5"/>
+        <feGaussianBlur stdDeviation="0.6"/>
       </filter>
     </defs>
     <path id="spiral-path" fill="none" stroke="url(#spiralGrad)" stroke-width="1.8" filter="url(#spiralBlur)"/>
@@ -1009,21 +1009,63 @@
 
   <script>
     function buildSpiral() {
-      const svg = document.getElementById('page-spiral');
-      const W   = document.documentElement.scrollWidth;
-      const H   = document.documentElement.scrollHeight;
-      const nav = document.querySelector('nav');
+      const svg    = document.getElementById('page-spiral');
+      const W      = document.documentElement.scrollWidth;
+      const H      = document.documentElement.scrollHeight;
+      const nav    = document.querySelector('nav');
       const startY = nav ? nav.offsetHeight : 0;
-      const endY   = H;
-      const inset  = 32; // px from edge
+      const totalH = H - startY;
 
       svg.style.height = H + 'px';
 
-      const leftX  = inset;
-      const rightX = W - inset;
+      // Waypoints [x from left edge, fraction of total height]
+      // Produces organic S-curves with one small loop around 22-27%
+      const wpts = [
+        [40, 0.00],
+        [64, 0.06],
+        [42, 0.12],
+        [20, 0.17],
+        [38, 0.21],
+        [70, 0.25],  // loop: swing inward
+        [58, 0.20],  // loop: arc back up (crosses path, forms loop)
+        [26, 0.26],  // loop: exit left
+        [42, 0.32],
+        [70, 0.41],
+        [42, 0.50],
+        [18, 0.59],
+        [42, 0.68],
+        [66, 0.77],
+        [42, 0.86],
+        [24, 0.93],
+        [40, 1.00],
+      ];
+
+      function catmullRom(pts) {
+        let d = `M ${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
+        for (let i = 0; i < pts.length - 1; i++) {
+          const p0 = pts[Math.max(0, i - 1)];
+          const p1 = pts[i];
+          const p2 = pts[i + 1];
+          const p3 = pts[Math.min(pts.length - 1, i + 2)];
+          const cp1x = p1[0] + (p2[0] - p0[0]) / 6;
+          const cp1y = p1[1] + (p2[1] - p0[1]) / 6;
+          const cp2x = p2[0] - (p3[0] - p1[0]) / 6;
+          const cp2y = p2[1] - (p3[1] - p1[1]) / 6;
+          d += ` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;
+        }
+        return d;
+      }
+
+      function toAbsolute(wpts, side) {
+        return wpts.map(([x, fy]) => [
+          side === 'right' ? W - x : x,
+          startY + totalH * fy
+        ]);
+      }
 
       const left = document.getElementById('spiral-path');
-      left.setAttribute('d', `M ${leftX} ${startY} L ${leftX} ${endY}`);
+      left.setAttribute('d', catmullRom(toAbsolute(wpts, 'left')));
+      left.setAttribute('stroke-width', '2');
 
       let right = document.getElementById('spiral-path-right');
       if (!right) {
@@ -1031,17 +1073,17 @@
         right.setAttribute('id', 'spiral-path-right');
         right.setAttribute('fill', 'none');
         right.setAttribute('stroke', 'url(#spiralGrad)');
-        right.setAttribute('stroke-width', '1.5');
+        right.setAttribute('stroke-width', '2');
         right.setAttribute('filter', 'url(#spiralBlur)');
         svg.appendChild(right);
       }
-      right.setAttribute('d', `M ${rightX} ${startY} L ${rightX} ${endY}`);
+      right.setAttribute('d', catmullRom(toAbsolute(wpts, 'right')));
 
       [left, right].forEach(p => {
         const len = p.getTotalLength();
-        p.style.strokeDasharray  = '6 6';
+        p.style.strokeDasharray  = '7 9';
         p.style.strokeDashoffset = len;
-        p.style.transition = 'stroke-dashoffset 3s ease-in-out';
+        p.style.transition = 'stroke-dashoffset 4s ease-in-out';
         requestAnimationFrame(() => { p.style.strokeDashoffset = 0; });
       });
     }
