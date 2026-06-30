@@ -1291,7 +1291,9 @@
       if (typeof Peel === 'undefined' || !peelEl) return;
 
       var p = new Peel('#media-widget-peel', { corner: Peel.Corners.TOP_LEFT });
-      p.handleDrag();
+      p.handleDrag(function(evt, x, y) {
+        p.setPeelPosition(x, y);
+      });
 
       // Hint animation: lift corner then retract
       setTimeout(function() {
