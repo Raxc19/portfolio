@@ -1320,10 +1320,13 @@
       function onRelease() {
         if (animating) return;
         var w = peelEl.offsetWidth, h = peelEl.offsetHeight;
-        // Auto-complete if either axis is past 45% of the card
-        if (curX > w * 0.45 || curY > h * 0.45) {
-          animateTo(curX, curY, w, h, 420);
-          curX = w; curY = h;
+        // Use actual clipped area ratio so threshold works at any card size
+        var clipped = p.getAmountClipped();
+        // Animate past the card so the fold line fully exits — (w+h) on each axis does it
+        var far = w + h;
+        if (clipped > 0.25) {
+          animateTo(curX, curY, far, far, 450);
+          curX = far; curY = far;
         } else {
           animateTo(curX, curY, 0, 0, 280);
           curX = 0; curY = 0;
