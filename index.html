@@ -1291,29 +1291,61 @@
       if (typeof Peel === 'undefined' || !peelEl) return;
 
       var p = new Peel('#media-widget-peel', { corner: Peel.Corners.TOP_LEFT });
+      var curX = 0, curY = 0;
+      var animating = false;
+
+      function animateTo(fromX, fromY, toX, toY, duration) {
+        animating = true;
+        var start = null;
+        function frame(ts) {
+          if (!start) start = ts;
+          var t = Math.min((ts - start) / duration, 1);
+          var ease = 1 - Math.pow(1 - t, 3);
+          p.setPeelPosition(fromX + (toX - fromX) * ease, fromY + (toY - fromY) * ease);
+          if (t < 1) requestAnimationFrame(frame);
+          else animating = false;
+        }
+        requestAnimationFrame(frame);
+      }
+
       p.handleDrag(function(evt) {
+        if (animating) return;
         var rect = peelEl.getBoundingClientRect();
         var pos = evt.changedTouches ? evt.changedTouches[0] : evt;
-        p.setPeelPosition(pos.clientX - rect.left, pos.clientY - rect.top);
+        curX = pos.clientX - rect.left;
+        curY = pos.clientY - rect.top;
+        p.setPeelPosition(curX, curY);
       });
+
+      function onRelease() {
+        if (animating) return;
+        var w = peelEl.offsetWidth, h = peelEl.offsetHeight;
+        // Auto-complete if either axis is past 45% of the card
+        if (curX > w * 0.45 || curY > h * 0.45) {
+          animateTo(curX, curY, w, h, 420);
+          curX = w; curY = h;
+        } else {
+          animateTo(curX, curY, 0, 0, 280);
+          curX = 0; curY = 0;
+        }
+      }
+      document.addEventListener('mouseup', onRelease);
+      document.addEventListener('touchend', onRelease);
 
       // Hint animation: lift corner then retract
       setTimeout(function() {
-        var start = null;
-        var maxDist = 90;
+        var start = null, maxDist = 90;
         function frame(ts) {
           if (!start) start = ts;
           var elapsed = ts - start;
-          var prog;
           if (elapsed < 500) {
-            prog = elapsed / 500;
-            p.setPeelPosition(prog * maxDist, prog * maxDist);
+            p.setPeelPosition(elapsed / 500 * maxDist, elapsed / 500 * maxDist);
             requestAnimationFrame(frame);
           } else if (elapsed < 900) {
             p.setPeelPosition(maxDist, maxDist);
             requestAnimationFrame(frame);
           } else if (elapsed < 1400) {
-            prog = 1 - (elapsed - 900) / 500;
+            var prog = 1 - (elapsed - 900) / 500;
             p.setPeelPosition(Math.max(0, prog * maxDist), Math.max(0, prog * maxDist));
             requestAnimationFrame(frame);
           }
