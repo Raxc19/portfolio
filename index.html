@@ -1143,17 +1143,20 @@
         svg.appendChild(c);
       };
 
-      // Line from music bottom-left → stack top-center
-      addPath(curve(m.left + m.right*0.25 - m.left*0.25, m.bottom, s.cx, s.top));
-      addDot(s.cx, s.top);
+      const inset = 20; // anchor dots inside card borders so they look connected
 
-      // Line from music bottom-right → minimize top-center
-      addPath(curve(m.right - (m.right-m.left)*0.25, m.bottom, w.cx, w.top));
-      addDot(w.cx, w.top);
+      const ox1 = m.left + (m.right - m.left) * 0.25;
+      const ox2 = m.right - (m.right - m.left) * 0.25;
 
-      // Origin dots on music card bottom
-      addDot(m.left + m.right*0.25 - m.left*0.25, m.bottom);
-      addDot(m.right - (m.right-m.left)*0.25,      m.bottom);
+      // Line from music bottom → stack top
+      addPath(curve(ox1, m.bottom - inset, s.cx, s.top + inset));
+      addDot(ox1, m.bottom - inset);
+      addDot(s.cx, s.top + inset);
+
+      // Line from music bottom → minimize top
+      addPath(curve(ox2, m.bottom - inset, w.cx, w.top + inset));
+      addDot(ox2, m.bottom - inset);
+      addDot(w.cx, w.top + inset);
     }
 
     window.addEventListener('load', () => setTimeout(drawConnectors, 100));
