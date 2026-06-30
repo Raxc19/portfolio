@@ -554,6 +554,17 @@
       aspect-ratio: 1;
       object-fit: cover;
     }
+    .blue-star {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      color: #2563eb;
+      font-size: 1.6rem;
+      line-height: 1;
+      pointer-events: none;
+      z-index: 2;
+      user-select: none;
+    }
     .frc-cad-item .hover-video {
       position: absolute;
       inset: 0;
@@ -764,7 +775,7 @@
     <div class="projects-grid">
 
       <!-- Featured: Media Widget -->
-      <div class="project-card featured fade-in">
+      <div class="project-card featured fade-in"><span class="blue-star">*</span>
         <div class="featured-left">
           <div class="project-icon"><i class="fa-solid fa-music"></i></div>
           <h3>Floating Media Widget</h3>
@@ -808,7 +819,7 @@
       </div>
 
       <!-- Walking Robot -->
-      <div class="project-card featured fade-in">
+      <div class="project-card featured fade-in"><span class="blue-star">*</span>
         <div class="featured-left">
           <div class="project-icon"><i class="fa-solid fa-robot"></i></div>
           <h3>Walking Robot</h3>
@@ -893,12 +904,12 @@
         <p>As part of FRC Team 987, I designed the 2026 game shooter mechanism and a custom 3D-printed belt tensioner — a pulley system that auto-centers the belt to prevent slipping under rapid movement. I also built physics simulators and Onshape FeatureScripts used throughout the engineering cycle.</p>
 
         <div class="frc-cad-images">
-          <div class="frc-cad-item" id="shooter-card">
+          <div class="frc-cad-item" id="shooter-card"><span class="blue-star">*</span>
             <img src="frc-shooter.png" alt="FRC 2026 Game Shooter">
             <video class="hover-video" src="shooter.mov" muted playsinline loop preload="none"></video>
             <div class="frc-cad-label"><i class="fa-solid fa-bullseye"></i> 2026 Game Shooter</div>
           </div>
-          <div class="frc-cad-item" id="tensioner-card">
+          <div class="frc-cad-item" id="tensioner-card"><span class="blue-star">*</span>
             <img src="frc-belt-tensioner.png" alt="Custom 3D Printed Belt Tensioner">
             <img class="hover-video" src="belt-tensioner-hover.jpg" alt="Belt Tensioner Photo" style="object-fit:cover;">
             <div class="frc-cad-label"><i class="fa-solid fa-circle-notch"></i> Custom Belt Tensioner</div>
