@@ -335,7 +335,7 @@
       display: flex;
       flex-direction: row;
       gap: 40px;
-      align-items: stretch;
+      align-items: flex-start;
       overflow: hidden;
     }
     #media-widget-peel .peel-back {
@@ -1298,6 +1298,17 @@
     window.addEventListener('load', function() {
       var peelEl = document.getElementById('media-widget-peel');
       if (typeof Peel === 'undefined' || !peelEl) return;
+
+      // Size the container to the natural content height so padding is equal top/bottom
+      var topLayer = peelEl.querySelector('.peel-top');
+      if (topLayer) {
+        topLayer.style.setProperty('position', 'relative', 'important');
+        topLayer.style.setProperty('height',   'auto',     'important');
+        var h = topLayer.offsetHeight;
+        topLayer.style.removeProperty('position');
+        topLayer.style.removeProperty('height');
+        if (h > 0) peelEl.style.height = h + 'px';
+      }
 
       var p = new Peel('#media-widget-peel', {
         corner: Peel.Corners.TOP_LEFT,
