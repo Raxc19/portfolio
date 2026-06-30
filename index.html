@@ -1291,8 +1291,10 @@
       if (typeof Peel === 'undefined' || !peelEl) return;
 
       var p = new Peel('#media-widget-peel', { corner: Peel.Corners.TOP_LEFT });
-      p.handleDrag(function(evt, x, y) {
-        p.setPeelPosition(x, y);
+      p.handleDrag(function(evt) {
+        var rect = peelEl.getBoundingClientRect();
+        var pos = evt.changedTouches ? evt.changedTouches[0] : evt;
+        p.setPeelPosition(pos.clientX - rect.left, pos.clientY - rect.top);
       });
 
       // Hint animation: lift corner then retract
