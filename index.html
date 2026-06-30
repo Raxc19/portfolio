@@ -28,6 +28,12 @@
     }
 
     html { scroll-behavior: smooth; }
+    /* offset anchor scroll for fixed nav (~60px) */
+    #projects, #frc, #about,
+    #walking-robot-card, #media-widget-card, #pcb-card,
+    #smart-stack-card, #minimize-card {
+      scroll-margin-top: 80px;
+    }
 
     body {
       background: var(--bg);
