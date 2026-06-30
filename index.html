@@ -342,29 +342,57 @@
     .peel-corner-tab {
       position: absolute;
       top: 0; left: 0;
-      width: 0; height: 0;
-      border-style: solid;
-      border-width: 72px 72px 0 0;
-      border-color: #2563eb transparent transparent transparent;
+      width: 90px; height: 90px;
       cursor: pointer;
       z-index: 10;
-      transition: border-width 0.25s ease;
-      filter: drop-shadow(2px 2px 4px rgba(37,99,235,0.3));
     }
-    .peel-corner-tab:hover {
-      border-width: 90px 90px 0 0;
+    /* Shadow/underside triangle — slightly larger, tinted blue */
+    .peel-corner-tab::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 0; height: 0;
+      border-style: solid;
+      border-width: 88px 88px 0 0;
+      border-color: rgba(37,99,235,0.18) transparent transparent transparent;
+      opacity: 0;
+      transition: opacity 0.25s ease, border-width 0.25s ease;
+    }
+    /* Folded page flap — card bg color, slightly smaller */
+    .peel-corner-tab::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 0; height: 0;
+      border-style: solid;
+      border-width: 68px 68px 0 0;
+      border-color: #ffffff transparent transparent transparent;
+      opacity: 0;
+      transition: opacity 0.25s ease, border-width 0.25s ease;
+      filter: drop-shadow(1px 2px 4px rgba(0,0,0,0.12));
+    }
+    .peel-enabled:hover .peel-corner-tab::before,
+    .peel-enabled:hover .peel-corner-tab::after {
+      opacity: 1;
     }
     .peel-corner-tab .peel-label {
       position: absolute;
-      top: -64px; left: 4px;
-      color: white;
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.05em;
+      top: 18px; left: 5px;
+      color: #2563eb;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
       transform: rotate(-45deg);
       transform-origin: center;
       pointer-events: none;
       white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      z-index: 11;
+    }
+    .peel-enabled:hover .peel-corner-tab .peel-label {
+      opacity: 1;
     }
     .peel-back-content h4 {
       font-size: 18px; font-weight: 700; margin-bottom: 4px; color: var(--text);
