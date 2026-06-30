@@ -1290,7 +1290,10 @@
       var peelEl = document.getElementById('media-widget-peel');
       if (typeof Peel === 'undefined' || !peelEl) return;
 
-      var p = new Peel('#media-widget-peel', { corner: Peel.Corners.TOP_LEFT });
+      var p = new Peel('#media-widget-peel', {
+        corner: Peel.Corners.TOP_LEFT,
+        bottomShadow: false
+      });
       var curX = 0, curY = 0;
       var animating = false;
 
