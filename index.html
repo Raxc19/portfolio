@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="peel.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -313,108 +314,52 @@
       gap: 40px;
     }
 
-    /* ── Peel effect ── */
-    .peel-enabled { overflow: hidden; }
-    .peel-front-content, .peel-back-content {
-      display: flex;
-      gap: 32px;
-      transition: transform 0.6s cubic-bezier(0.4,0,0.2,1), opacity 0.5s ease;
+    /* ── Peel effect (peel.js) ── */
+    #media-widget-card {
+      padding: 0;
+      overflow: hidden;
     }
-    .peel-back-content {
-      position: absolute;
-      inset: 28px;
-      opacity: 0;
-      transform: translateY(20px);
-      pointer-events: none;
+    #media-widget-peel {
+      width: 100%;
+      height: 400px;
+    }
+    #media-widget-peel .peel-top {
+      background: var(--bg);
+      padding: 28px;
+      display: flex;
+      flex-direction: row;
+      gap: 40px;
+      align-items: flex-start;
+      overflow: hidden;
+    }
+    #media-widget-peel .peel-back {
+      background: linear-gradient(135deg, #0f1a2e 0%, #1d3a6e 60%, #2563eb22 100%);
+    }
+    #media-widget-peel .peel-bottom {
+      background: var(--bg);
+      padding: 28px;
+      display: flex;
       flex-direction: column;
       overflow-y: auto;
     }
-    .peel-enabled.peeled .peel-front-content {
-      opacity: 0;
-      transform: translateY(-20px);
-      pointer-events: none;
+    .peel-bottom h4 {
+      font-size: 18px; font-weight: 700; margin-bottom: 12px; color: var(--text);
     }
-    .peel-enabled.peeled .peel-back-content {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: all;
-    }
-    .peel-corner-tab {
-      position: absolute;
-      top: 0; left: 0;
-      width: 90px; height: 90px;
-      cursor: pointer;
-      z-index: 10;
-    }
-    /* Shadow/underside triangle — slightly larger, tinted blue */
-    .peel-corner-tab::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 0; height: 0;
-      border-style: solid;
-      border-width: 88px 88px 0 0;
-      border-color: rgba(37,99,235,0.18) transparent transparent transparent;
-      opacity: 0;
-      transition: opacity 0.25s ease, border-width 0.25s ease;
-    }
-    /* Folded page flap — card bg color, slightly smaller */
-    .peel-corner-tab::after {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 0; height: 0;
-      border-style: solid;
-      border-width: 68px 68px 0 0;
-      border-color: #ffffff transparent transparent transparent;
-      opacity: 0;
-      transition: opacity 0.25s ease, border-width 0.25s ease;
-      filter: drop-shadow(1px 2px 4px rgba(0,0,0,0.12));
-    }
-    .peel-enabled:hover .peel-corner-tab::before,
-    .peel-enabled:hover .peel-corner-tab::after {
-      opacity: 1;
-    }
-    .peel-corner-tab .peel-label {
-      position: absolute;
-      top: 18px; left: 5px;
-      color: #2563eb;
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      transform: rotate(-45deg);
-      transform-origin: center;
-      pointer-events: none;
-      white-space: nowrap;
-      opacity: 0;
-      transition: opacity 0.25s ease;
-      z-index: 11;
-    }
-    .peel-enabled:hover .peel-corner-tab .peel-label {
-      opacity: 1;
-    }
-    .peel-back-content h4 {
-      font-size: 18px; font-weight: 700; margin-bottom: 4px; color: var(--text);
-    }
-    .peel-back-content .peel-step {
+    .peel-bottom .peel-step {
       border-left: 3px solid #2563eb;
       padding-left: 14px;
       margin-bottom: 16px;
     }
-    .peel-back-content .peel-step h5 {
+    .peel-bottom .peel-step h5 {
       font-size: 13px; font-weight: 600; color: #2563eb; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.06em;
     }
-    .peel-back-content .peel-step p {
+    .peel-bottom .peel-step p {
       font-size: 14px; color: var(--muted); line-height: 1.7; margin: 0;
     }
-    .peel-close {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 12px; font-weight: 600; color: #2563eb;
-      cursor: pointer; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.06em;
-      background: none; border: none; padding: 0;
+    @media (max-width: 768px) {
+      #media-widget-peel { height: 520px; }
+      #media-widget-peel .peel-top { flex-direction: column; gap: 20px; }
     }
-    .peel-close:hover { opacity: 0.7; }
 
     .featured-left { flex: 1; display: flex; flex-direction: column; gap: 14px; }
     .featured-right {
@@ -882,53 +827,58 @@
     <div class="projects-grid">
 
       <!-- Featured: Media Widget -->
-      <div class="project-card featured fade-in peel-enabled" id="media-widget-card"><span class="blue-star">*</span>
-        <div class="peel-corner-tab" onclick="document.getElementById('media-widget-card').classList.add('peeled')">
-          <span class="peel-label">peel me</span>
-        </div>
-        <div class="peel-front-content">
-          <div class="featured-left">
-            <div class="project-icon"><i class="fa-solid fa-music"></i></div>
-            <h3>Floating Media Widget</h3>
-            <p>A glassmorphism music player that floats over your Windows desktop, showing the currently playing track from <em>any</em> app. Built as a native .exe using WebView2 with SMTC bindings — reads playback state from Spotify, YouTube, or anything — and renders a blurred, translucent card with album art, progress bar, and controls.</p>
-            <div class="project-tech">
-              <span class="tech-pill">HTML/CSS/JS</span>
-              <span class="tech-pill">C#</span>
-              <span class="tech-pill">WebView2</span>
-              <span class="tech-pill">PowerShell</span>
-              <span class="tech-pill">SMTC API</span>
-              <span class="tech-pill">Win32</span>
+      <div class="project-card featured fade-in" id="media-widget-card">
+        <div class="peel" id="media-widget-peel">
+
+          <!-- Front face of the page -->
+          <div class="peel-layer peel-top">
+            <span class="blue-star">*</span>
+            <div class="featured-left">
+              <div class="project-icon"><i class="fa-solid fa-music"></i></div>
+              <h3>Floating Media Widget</h3>
+              <p>A glassmorphism music player that floats over your Windows desktop, showing the currently playing track from <em>any</em> app. Built as a native .exe using WebView2 with SMTC bindings — reads playback state from Spotify, YouTube, or anything — and renders a blurred, translucent card with album art, progress bar, and controls.</p>
+              <div class="project-tech">
+                <span class="tech-pill">HTML/CSS/JS</span>
+                <span class="tech-pill">C#</span>
+                <span class="tech-pill">WebView2</span>
+                <span class="tech-pill">PowerShell</span>
+                <span class="tech-pill">SMTC API</span>
+                <span class="tech-pill">Win32</span>
+              </div>
+            </div>
+            <div class="featured-right">
+              <video src="music-widget-demo.mp4" autoplay loop muted playsinline controls></video>
             </div>
           </div>
-          <div class="featured-right">
-            <video src="music-widget-demo.mp4" autoplay loop muted playsinline controls></video>
+
+          <!-- Back of the peeled page (paper underside) -->
+          <div class="peel-layer peel-back"></div>
+
+          <!-- Content revealed beneath the peel -->
+          <div class="peel-layer peel-bottom">
+            <h4>How I built it — process &amp; trial/error</h4>
+            <div class="peel-step">
+              <h5>Step 1 — The idea</h5>
+              <p>I wanted a floating music overlay that worked with any app, not just Spotify. Windows has the SMTC (System Media Transport Controls) API that exposes the "now playing" info from any app — Spotify, YouTube in Chrome, anything. The challenge was surfacing that in a real-time UI.</p>
+            </div>
+            <div class="peel-step">
+              <h5>Step 2 — Choosing the stack</h5>
+              <p>I tried a pure Electron approach first but it was 200 MB and felt heavy for a widget. Switched to WebView2 + C# — same HTML/CSS/JS front-end but the host is a tiny native .exe. First few builds crashed on startup because I wasn't initializing the WebView2 environment asynchronously.</p>
+            </div>
+            <div class="peel-step">
+              <h5>Step 3 — SMTC bindings</h5>
+              <p>Wiring the C# SMTC event handlers to fire updates into the JavaScript context was tricky. I had to marshal data across the WebView2 bridge using <code>PostWebMessageAsString</code> and parse JSON on the JS side. The first version had a race condition where the UI would render before the media session connected.</p>
+            </div>
+            <div class="peel-step">
+              <h5>Step 4 — Glassmorphism &amp; always-on-top</h5>
+              <p>The frosted glass effect uses CSS <code>backdrop-filter: blur()</code> which only works when the window has a transparent background. Getting Win32 window transparency right without WPF took several attempts with <code>SetLayeredWindowAttributes</code> and DWM composition flags.</p>
+            </div>
+            <div class="peel-step">
+              <h5>Step 5 — Packaging</h5>
+              <p>Distributing WebView2 apps requires the runtime to be installed. I bundled the Evergreen bootstrapper so it auto-installs on first run. The final .exe is under 2 MB — a fraction of the Electron equivalent.</p>
+            </div>
           </div>
-        </div>
-        <div class="peel-back-content">
-          <button class="peel-close" onclick="document.getElementById('media-widget-card').classList.remove('peeled')">
-            <i class="fa-solid fa-arrow-left fa-xs"></i> Back
-          </button>
-          <h4>How I built it — process &amp; trial/error</h4>
-          <div class="peel-step">
-            <h5>Step 1 — The idea</h5>
-            <p>I wanted a floating music overlay that worked with any app, not just Spotify. Windows has the SMTC (System Media Transport Controls) API that exposes the "now playing" info from any app — Spotify, YouTube in Chrome, anything. The challenge was surfacing that in a real-time UI.</p>
-          </div>
-          <div class="peel-step">
-            <h5>Step 2 — Choosing the stack</h5>
-            <p>I tried a pure Electron approach first but it was 200 MB and felt heavy for a widget. Switched to WebView2 + C# — same HTML/CSS/JS front-end but the host is a tiny native .exe. First few builds crashed on startup because I wasn't initializing the WebView2 environment asynchronously.</p>
-          </div>
-          <div class="peel-step">
-            <h5>Step 3 — SMTC bindings</h5>
-            <p>Wiring the C# SMTC event handlers to fire updates into the JavaScript context was tricky. I had to marshal data across the WebView2 bridge using <code>PostWebMessageAsString</code> and parse JSON on the JS side. The first version had a race condition where the UI would render before the media session connected.</p>
-          </div>
-          <div class="peel-step">
-            <h5>Step 4 — Glassmorphism &amp; always-on-top</h5>
-            <p>The frosted glass effect uses CSS <code>backdrop-filter: blur()</code> which only works when the window has a transparent background. Getting Win32 window transparency right without WPF took several attempts with <code>SetLayeredWindowAttributes</code> and DWM composition flags.</p>
-          </div>
-          <div class="peel-step">
-            <h5>Step 5 — Packaging</h5>
-            <p>Distributing WebView2 apps requires the runtime to be installed. I bundled the Evergreen bootstrapper so it auto-installs on first run. The final .exe is under 2 MB — a fraction of the Electron equivalent.</p>
-          </div>
+
         </div>
       </div>
 
@@ -1331,6 +1281,41 @@
 
     document.querySelectorAll('.project-card').forEach((card, i) => {
       card.style.transitionDelay = `${i * 55}ms`;
+    });
+  </script>
+
+  <script src="peel.js"></script>
+  <script>
+    window.addEventListener('load', function() {
+      var peelEl = document.getElementById('media-widget-peel');
+      if (typeof Peel === 'undefined' || !peelEl) return;
+
+      var p = new Peel('#media-widget-peel', { corner: Peel.Corners.TOP_LEFT });
+      p.handleDrag();
+
+      // Hint animation: lift corner then retract
+      setTimeout(function() {
+        var start = null;
+        var maxDist = 90;
+        function frame(ts) {
+          if (!start) start = ts;
+          var elapsed = ts - start;
+          var prog;
+          if (elapsed < 500) {
+            prog = elapsed / 500;
+            p.setPeelPosition(prog * maxDist, prog * maxDist);
+            requestAnimationFrame(frame);
+          } else if (elapsed < 900) {
+            p.setPeelPosition(maxDist, maxDist);
+            requestAnimationFrame(frame);
+          } else if (elapsed < 1400) {
+            prog = 1 - (elapsed - 900) / 500;
+            p.setPeelPosition(Math.max(0, prog * maxDist), Math.max(0, prog * maxDist));
+            requestAnimationFrame(frame);
+          }
+        }
+        requestAnimationFrame(frame);
+      }, 1200);
     });
   </script>
 </body>
