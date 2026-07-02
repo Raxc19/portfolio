@@ -770,23 +770,19 @@
       margin-bottom: 16px;
       opacity: 0.75;
     }
-    .commits-grid-wrap { margin-top: 52px; text-align: center; }
+    .commits-grid-wrap { margin: 20px 0 48px; text-align: center; }
     .commits-grid {
       display: inline-grid;
       gap: 2px;
-      padding: 20px 24px;
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
       overflow-x: auto;
     }
     .commits-grid-cell {
-      width: 10px;
-      height: 10px;
+      width: 12px;
+      height: 12px;
       border-radius: 2px;
       transition: transform 0.15s ease, opacity 0.35s ease;
     }
-    .commits-grid-cell:hover { transform: scale(1.5); }
+    .commits-grid-cell:hover { transform: scale(1.4); }
 
   </style>
 </head>
@@ -1019,12 +1015,15 @@
   <!-- FRC -->
   <section id="frc">
     <div class="section-label"><i class="fa-solid fa-wrench fa-xs"></i>&nbsp; 02 — robotics</div>
-    <h2 class="section-title">FRC Team 987 — High Rollers</h2>
+
+    <!-- Commits Grid — section hero -->
+    <div class="commits-grid-wrap fade-in">
+      <div class="commits-grid-label">HIGH ROLLERS — FRC #987</div>
+      <div class="commits-grid" id="frc-commits-grid"></div>
+    </div>
 
     <div class="frc-banner fade-in">
       <div>
-        <div class="frc-season"><i class="fa-solid fa-calendar fa-xs"></i>&nbsp; 2025 – 2026 SEASON</div>
-        <h3>High Rollers</h3>
         <p>As part of FRC Team 987, I designed the 2026 game shooter mechanism and a custom 3D-printed belt tensioner — a pulley system that auto-centers the belt to prevent slipping under rapid movement. I also built physics simulators and Onshape FeatureScripts used throughout the engineering cycle.</p>
 
         <div class="frc-cad-images">
@@ -1065,11 +1064,6 @@
       </a>
     </div>
 
-    <!-- Commits Grid -->
-    <div class="commits-grid-wrap fade-in">
-      <div class="commits-grid-label">HIGH ROLLERS — FRC #987</div>
-      <div class="commits-grid" id="frc-commits-grid"></div>
-    </div>
 
   </section>
 
@@ -1357,8 +1351,8 @@
         if (ci < text.length - 1) cols.push([0,0,0,0,0,0,0]);
       }
       var numCols = cols.length;
-      grid.style.gridTemplateColumns = 'repeat(' + numCols + ', 10px)';
-      grid.style.gridTemplateRows = 'repeat(7, 10px)';
+      grid.style.gridTemplateColumns = 'repeat(' + numCols + ', 12px)';
+      grid.style.gridTemplateRows = 'repeat(7, 12px)';
       for (var row = 0; row < 7; row++) {
         for (var col = 0; col < numCols; col++) {
           var on = cols[col][row];
